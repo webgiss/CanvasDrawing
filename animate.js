@@ -31,6 +31,16 @@ const animate = ({ action, from, to, step, duration, count, frameTime }) => {
                 from = from || 0;
                 step = step || 1;
                 count = 1 + ((to - from) / step);
+                if (duration === undefined && frameTime !== undefined) {
+                    duration = count * frameTime;
+                } else if (frameTime === undefined && duration !== undefined) {
+                    if (count !== 0) {
+                        frameTime = duration / count;
+                    } else {
+                        count = 1;
+                        frameTime = 0;
+                    }
+                }
             } else {
                 reject(`Too few information, you need to provide two of the following informations : duration=[${duration}], count=[${count}], frameTime=[${frameTime}]`);
             }
@@ -38,6 +48,7 @@ const animate = ({ action, from, to, step, duration, count, frameTime }) => {
 
         if (count === 0) {
             resolve();
+            return;
         }
 
         if (to === undefined) {
