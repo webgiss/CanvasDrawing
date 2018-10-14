@@ -91,11 +91,13 @@ class Path {
         })
     }
     close() {
-        this._context.strokeStyle = this._color;
-        this._context.beginPath();
-        this._actions.map(action=>action());
-        this._context.stroke();
-        this._context.closePath();
+        if (this._context !== undefined) {
+            this._context.strokeStyle = this._color;
+            this._context.beginPath();
+            this._actions.map(action=>action());
+            this._context.stroke();
+            this._context.closePath();
+        }
     }
 }
 class Drawing {
@@ -114,33 +116,49 @@ class Drawing {
     reinit({canvas, height, width, origin, mapx, mapy, bgcolor}) {
         let needClear = false;
 
-        this._canvas = canvas;
-        this._height = height || 800;
-        this._width = width || 800;
-        this._bgcolor = bgcolor;
-        if (origin === undefined) {
-            origin = [0,0];
+        if (canvas !== undefined) {
+            this._canvas = canvas;
+            needClear = true;
         }
-        this._origin = new Vector(origin);
+        if (origin !== undefined) {
+            this._origin = new Vector(origin);
+        }
+        if (self._origin === undefined) {
+            self._origin = new Vector([0,0]);
+        }
+       
+        if (mapx !== undefined) {
+            self._mapx = mapx;
+        }
+        if (mapy !== undefined) {
+            self._mapy = mapy;
+        }
+        if (self._mapx === undefined) {
+            self._mapx === 1;
+        }
+        if (self._mapy === undefined) {
+            self._mapy === 1;
+        }
         
-        mapx = mapx || 1;
-        mapy = mapy || 1;
+        this._map = new Vector(self._mapx,self._mapy);
         
-        this._map = new Vector(mapx,mapy);
-        
-        if (this._width === undefined) {
+        if (width === undefined) {
             this._width = this._canvas.width;
         } else {
+            this._width = width;
             this._canvas.width = this._width;
             needClear = true;
         }
-        if (this._height === undefined) {
+        if (height === undefined) {
             this._height = this._canvas.height;
         } else {
+            this._height = height;
             this._canvas.height = this._height;
             needClear = true;
         }
-        this._context = this._canvas.getContext('2d');
+        if (this._canvas !== undefined) {
+            this._context = this._canvas.getContext('2d');
+        }
         if (bgcolor !== undefined) {
             this._bgcolor = bgcolor;
             needClear = true;
@@ -168,21 +186,33 @@ class Drawing {
     }
     
     rect(x,y,w,h,c) {
-        this._context.fillStyle=c;
-        this._context.fillRect(x,y,w,h);
+        if (this._context !== undefined) {
+            this._context.fillStyle=c;
+            this._context.fillRect(x,y,w,h);
+        }
     }
     
-    _lineTo(point){ this._context.lineTo(...this.getContextCoord(point).xy); }
-    _moveTo(point){ this._context.moveTo(...this.getContextCoord(point).xy); }
+    _lineTo(point){
+        if (this._context !== undefined) {
+            this._context.lineTo(...this.getContextCoord(point).xy);
+        }
+    }
+    _moveTo(point){
+        if (this._context !== undefined) {
+            this._context.moveTo(...this.getContextCoord(point).xy);
+        }
+    }
  
     _arc(center, length, startAngle, stopAngle){
-        console.log({center, length, startAngle, stopAngle});
-        this._context.arc(
-            ...this.getContextCoord(center).xy, 
-            this.getContextDistance(length),
-            startAngle, 
-            stopAngle
-        );
+        if (this._context !== undefined) {
+            console.log({center, length, startAngle, stopAngle});
+            this._context.arc(
+                ...this.getContextCoord(center).xy, 
+                this.getContextDistance(length),
+                startAngle, 
+                stopAngle
+            );
+        }
     }
     
     line({ point0, point1, color }){
