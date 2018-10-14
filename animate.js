@@ -1,3 +1,6 @@
+(function(){
+let window = this;
+
 const animate = ({ action, from, to, step, duration, count, frameTime }) => {
     return new Promise((resolve, reject) => {
         if (frameTime === 0) {
@@ -70,3 +73,8 @@ const animate = ({ action, from, to, step, duration, count, frameTime }) => {
         setTimeout(() => resolve(), 1000 * frameTime * count);
     });
 }
+
+window.CanvasDrawing = { ...(window.CanvasDrawing || {}), animate };
+
+})(this);
+

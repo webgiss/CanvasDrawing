@@ -242,7 +242,7 @@ class Drawing {
     
 }
 
-const CanvasDrawing = {Vector, Drawing, getXY};
-window.CanvasDrawing = CanvasDrawing;
+// const CanvasDrawing = {Vector, Drawing, getXY};
+window.CanvasDrawing = { ...(window.CanvasDrawing || {}), Vector, Drawing, getXY };
 
 })(this);
