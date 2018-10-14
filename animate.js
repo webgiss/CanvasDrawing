@@ -3,9 +3,6 @@ let window = this;
 
 const animate = ({ action, from, to, step, duration, count, frameTime }) => {
     return new Promise((resolve, reject) => {
-        if (frameTime === 0) {
-            reject('frameTime with 0 value makes no sense.');
-        }
         if (step === 0) {
             reject('step with 0 value makes no sense.');
         }
