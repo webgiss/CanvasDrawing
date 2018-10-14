@@ -9,10 +9,8 @@ const getPoints = (range) => range.map(i => new Vector(0.98, 2 * Math.PI * i / r
 
 const getIndex = (points, index) => points[(((Math.floor(index)) % points.length) + points.length) % points.length]
 
-const drawTimeTable = (drawing, n, k, {clear, repeat}) => {
-    if (m === undefined) {
-        m = 1;
-    }
+const drawTimeTable = (drawing, n, k, params) => {
+    let { clear, repeat } = params || {};
     let range = getRange(n);
     let points = getPoints(range);
 
