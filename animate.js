@@ -29,8 +29,8 @@ const animate = ({ action, from, to, step, duration, count, frameTime }) => {
         } else {
             if (count === undefined && (duration !== undefined || frameTime !== undefined) && to !== undefined) {
                 from = from || 0;
-                step = step || 1;
-                count = 1 + ((to - from) / step);
+                step = step || (to>=from ? 1 : -1);
+                count = Math.floor(1 + ((to - from) / step));
                 if (duration === undefined && frameTime !== undefined) {
                     duration = count * frameTime;
                 } else if (frameTime === undefined && duration !== undefined) {
@@ -53,7 +53,7 @@ const animate = ({ action, from, to, step, duration, count, frameTime }) => {
 
         if (to === undefined) {
             from = from || 0;
-            step = step || 1;
+            step = step || (to>=from ? 1 : -1);
             to = from + (count - 1) * step;
         } else {
             if (step === undefined) {
@@ -78,7 +78,9 @@ const animate = ({ action, from, to, step, duration, count, frameTime }) => {
             let value = from + frame * step;
             setTimeout(() => action({ from, to, step, value, count, frameTime, frame, duration }), 1000 * frameTime * frame);
         }
-        setTimeout(() => resolve(), 1000 * frameTime * count);
+        setTimeout(() => {
+            resolve();
+        }, 1000 * frameTime * count);
     });
 }
 

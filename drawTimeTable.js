@@ -11,6 +11,9 @@ const getIndex = (points, index) => points[(((Math.floor(index)) % points.length
 
 const drawTimeTable = (drawing, n, k, params) => {
     let { clear, repeat, color } = params || {};
+    if (n<=0) {
+        return;
+    }
     let range = getRange(n);
     let points = getPoints(range);
 

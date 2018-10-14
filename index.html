@@ -2,6 +2,8 @@
 <html>
     <head>
         <script src='canvasdrawing.js'></script>
+        <script src='drawTimeTable.js'></script>
+        <script src='animate.js'></script>
         <style>
             body, canvas { margin:0; padding:0; overflow: hidden;}
         </style>
@@ -11,26 +13,37 @@
     </body>
 </html>
 <script>
-let {Drawing, Vector} = CanvasDrawing;
-let drawing = new Drawing({ canvas: document.getElementById('item'), height: 1080, width: 1920, origin: [1920/2,1080/2], mapx: 1080/2, mapy: -1080/2, bgcolor: '#d8cccc' });
+let {Drawing, Vector, animate, drawTimeTable} = CanvasDrawing;
+// let [width, height] = [1920,1080];
+let [width, height] = [window.innerWidth, window.innerHeight];
+let minDim = Math.min(width, height);
+let drawing = new Drawing({ canvas: document.getElementById('item'), height, width, origin: [width/2,height/2], mapx: minDim/2, mapy: -minDim/2, bgcolor: '#e0e0cc' });
 
-const getRange = (n) => [...Array(n).keys()];
-const getPoints = (range) => range.map(i => new Vector(0.99,2*Math.PI*i/range.length, true));
-const getIndex = (points, index) => points[(((Math.floor(index))%points.length)+points.length)%points.length];
-const drawTimeTable = (drawing, n, d) => {
-    let range = getRange(n);
-    let points = getPoints(range);
-    drawing.clear();
-    points.map((point,i)=>drawing.line({point0:point, point1:getIndex(points,d*i), color:'#331118'}))
-    console.log([n,d]);
-}
-
-// drawTimeTable(drawing, 1004, 200);
-// drawTimeTable(drawing, 30*15-37, 15);
 const drawFrame = (k)=> {
-    let n = k+1;
-    drawTimeTable(drawing, 3*k+7, k);
+    let [n,m] = [3*(k-1)-13, k];
+    drawTimeTable(drawing, n, m, {color: '#331108'});
+
+    let text = `${n} - ${m}`;
+    drawing.addText({text, fontFamily:'sans-serif', fontSize:'14px', color:'#442211', point:[1,-1], position: '7'});
 }
 
-getRange(1024).map((k)=>setTimeout(()=>drawFrame(k), k*0.07*1000));
+let animationParams = {
+    action: ({value}) => {
+        drawFrame(value);
+    },
+    frameTime: 0.07,
+};
+
+let p = Promise.resolve();
+
+const addActions = (p) => {
+    p = p.then(() => animate({...animationParams,from: 512,to: 13}));
+    p = p.then(() => animate({...animationParams,from: 13,to: 512}));
+    return p;
+}
+
+for (let i=0; i<10; i++){
+    p = addActions(p);
+}
+
 </script>
