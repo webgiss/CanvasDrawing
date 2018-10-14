@@ -194,7 +194,7 @@ class Drawing {
     }
     clear() {
         let bgcolor = this._bgcolor || '#fff';
-        this.rect(0,0,this._width,this._height, bgcolor);
+        this._rect(0,0,this._width,this._height, bgcolor);
     }
     getContextCoord(x,y) {
         let v = new Vector(x,y);
@@ -210,7 +210,7 @@ class Drawing {
         return new Path({drawing: this, color});
     }
     
-    rect(x,y,w,h,c) {
+    _rect(x,y,w,h,c) {
         if (this._context !== undefined) {
             this._context.fillStyle=c;
             this._context.fillRect(x,y,w,h);
@@ -274,11 +274,14 @@ class Drawing {
         }
         let [x,y] = this.getContextCoord(point).xy;
         let [width, height] = determineFontSize(fontFamily, fontSize, text);
+        let [xmin, xman, ymin, yman] = [x,x,y,y];
         switch (position) {
             case POS_BOTTOMLEFT:
             case POS_BOTTOM:
             case POS_BOTTOMRIGHT:
                 {
+                    ymin = y + space;
+                    ymax = ymin + height;
                     y = y + space + height;
                 }
                 break;
@@ -286,6 +289,8 @@ class Drawing {
             case POS_CENTER:
             case POS_RIGHT:
                 {
+                    ymin = y - height/2;
+                    ymax = ymin + height;
                     y = y + height/2;
                 }
                 break;
@@ -293,6 +298,9 @@ class Drawing {
             case POS_TOP:
             case POS_TOPRIGHT:
                 {
+
+                    ymin = y - space - height;
+                    ymax = ymin + height;
                     y = y - space;
                 }
                 break;
@@ -308,6 +316,8 @@ class Drawing {
             case POS_LEFT:
             case POS_TOPLEFT:
                 {
+                    xmin = x - space - width;
+                    xmax = xmin + width;
                     x = x - space - width;
                 }
                 break;
@@ -315,6 +325,8 @@ class Drawing {
             case POS_CENTER:
             case POS_TOP:
                 {
+                    xmin = x + width/2;
+                    xmax = xmin + width;
                     x = x - width/2;
                 }
                 break;
@@ -322,11 +334,13 @@ class Drawing {
             case POS_RIGHT:
             case POS_TOPRIGHT:
                 {
+                    xmin = x + space;
+                    xmax = xmin + width;
                     x = x + space;
                 }
                 break;
             case POS_NONE:
-            default:
+            efault:
                 {
                     return;
                 }
@@ -335,6 +349,8 @@ class Drawing {
         this._context.fillStyle = color;
         this._context.font = fontSize + " " + fontFamily;
         this._context.fillText(text, x, y);
+        this._context.rect(xmin, ymin, width, height,)
+        this._context.stroke();
     }
     
 }
