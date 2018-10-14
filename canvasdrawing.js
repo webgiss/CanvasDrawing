@@ -281,7 +281,6 @@ class Drawing {
             case POS_BOTTOMRIGHT:
                 {
                     ymin = y + space;
-                    ymax = ymin + height;
                     y = y + space + height;
                 }
                 break;
@@ -290,7 +289,6 @@ class Drawing {
             case POS_RIGHT:
                 {
                     ymin = y - height/2;
-                    ymax = ymin + height;
                     y = y + height/2;
                 }
                 break;
@@ -300,7 +298,6 @@ class Drawing {
                 {
 
                     ymin = y - space - height;
-                    ymax = ymin + height;
                     y = y - space;
                 }
                 break;
@@ -317,7 +314,6 @@ class Drawing {
             case POS_TOPLEFT:
                 {
                     xmin = x - space - width;
-                    xmax = xmin + width;
                     x = x - space - width;
                 }
                 break;
@@ -325,8 +321,7 @@ class Drawing {
             case POS_CENTER:
             case POS_TOP:
                 {
-                    xmin = x + width/2;
-                    xmax = xmin + width;
+                    xmin = x - width/2;
                     x = x - width/2;
                 }
                 break;
@@ -335,7 +330,6 @@ class Drawing {
             case POS_TOPRIGHT:
                 {
                     xmin = x + space;
-                    xmax = xmin + width;
                     x = x + space;
                 }
                 break;
@@ -346,11 +340,15 @@ class Drawing {
                 }
                 break;
         }
-        this._context.fillStyle = color;
+        this._context.strokeStyle = color;
+        this._context.beginPath();
         this._context.font = fontSize + " " + fontFamily;
+        this._context.fillStyle = color;
         this._context.fillText(text, x, y);
+
         this._context.rect(xmin, ymin, width, height)
         this._context.stroke();
+        this._context.closePath();
     }
     
 }
