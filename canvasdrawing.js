@@ -274,7 +274,7 @@ class Drawing {
         }
         let [x,y] = this.getContextCoord(point).xy;
         let [width, height] = determineFontSize(fontFamily, fontSize, text);
-        let [xmin, xman, ymin, yman] = [x,x,y,y];
+        let [xmin, xmax, ymin, ymax] = [x,x,y,y];
         switch (position) {
             case POS_BOTTOMLEFT:
             case POS_BOTTOM:
