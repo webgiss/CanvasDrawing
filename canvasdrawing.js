@@ -99,7 +99,21 @@ class Path {
     }
 }
 class Drawing {
-    constructor({canvas, height, width, origin, mapx, mapy, bgcolor}) {
+    constructor(params) {
+        this.reinit(params);
+    }
+    get width() {
+        return this._width;
+    }
+    get height() {
+        return this._height;
+    }  
+    get context() {
+        return this._context;
+    }
+    reinit({canvas, height, width, origin, mapx, mapy, bgcolor}) {
+        let needClear = false;
+
         this._canvas = canvas;
         this._height = height || 800;
         this._width = width || 800;
@@ -114,21 +128,26 @@ class Drawing {
         
         this._map = new Vector(mapx,mapy);
         
-        this._canvas.width = this._width;
-        this._canvas.height = this._height;
-        this._context = this._canvas.getContext('2d');
-        if (this._bgcolor !== undefined) {
-            this.rect(0,0,this._width,this._height, this._bgcolor);
+        if (this._width === undefined) {
+            this._width = this._canvas.width;
+        } else {
+            this._canvas.width = this._width;
+            needClear = true;
         }
-    }
-    get width() {
-        return this._width;
-    }
-    get height() {
-        return this._height;
-    }  
-    get context() {
-        return this._context;
+        if (this._height === undefined) {
+            this._height = this._canvas.height;
+        } else {
+            this._canvas.height = this._height;
+            needClear = true;
+        }
+        this._context = this._canvas.getContext('2d');
+        if (bgcolor !== undefined) {
+            this._bgcolor = bgcolor;
+            needClear = true;
+        }
+        if (needClear) {
+            this.clear();
+        }
     }
     clear() {
         let bgcolor = this._bgcolor || '#fff';
