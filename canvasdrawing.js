@@ -26,13 +26,15 @@ const getXY = (x,y) => {
 const determineFontSize = (family, size, text) => {
     var fontStyle = "font-family: " + family + "; font-size: " + size + ";"
     var body = window.document.getElementsByTagName("body")[0];
-    var dummy = window.document.createElement("span");
+    var dummyParagraph = window.document.createElement("p");
+    var dummyElement = window.document.createElement("span");
     var dummyText = window.document.createTextNode(text);
-    dummy.appendChild(dummyText);
-    dummy.setAttribute("style", fontStyle);
-    body.appendChild(dummy);
-    var result = [dummy.offsetWidth, dummy.offsetHeight];
-    body.removeChild(dummy);
+    dummyElement.appendChild(dummyText);
+    dummyElement.setAttribute("style", fontStyle);
+    dummyParagraph.appendChild(dummyElement);
+    body.appendChild(dummyParagraph);
+    var result = [dummyElement.offsetWidth, dummyElement.offsetHeight];
+    body.removeChild(dummyParagraph);
     return result;
 }
 
