@@ -1,6 +1,5 @@
 (function(){
 let window = this;
-console.log(['Using this element as window : ', window]);
 
 const getXY = (x,y) => {
     if (x.__proto__.constructor === Vector) {
