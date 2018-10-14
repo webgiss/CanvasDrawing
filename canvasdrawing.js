@@ -349,7 +349,7 @@ class Drawing {
         this._context.fillStyle = color;
         this._context.font = fontSize + " " + fontFamily;
         this._context.fillText(text, x, y);
-        this._context.rect(xmin, ymin, width, height,)
+        this._context.rect(xmin, ymin, width, height)
         this._context.stroke();
     }
     
