@@ -24,16 +24,16 @@ const getXY = (x,y) => {
 
 
 const determineFontSize = (family, size, text) => {
-    var fontStyle = "font-family: " + family + "; font-size: " + size + ";"
-    var body = window.document.getElementsByTagName("body")[0];
-    var dummyParagraph = window.document.createElement("p");
-    var dummyElement = window.document.createElement("span");
-    var dummyText = window.document.createTextNode(text);
+    let fontStyle = "font-family: " + family + "; font-size: " + size + ";"
+    let body = window.document.getElementsByTagName("body")[0];
+    let dummyParagraph = window.document.createElement("p");
+    let dummyElement = window.document.createElement("span");
+    let dummyText = window.document.createTextNode(text);
     dummyElement.appendChild(dummyText);
     dummyElement.setAttribute("style", fontStyle);
     dummyParagraph.appendChild(dummyElement);
     body.appendChild(dummyParagraph);
-    var result = [dummyElement.offsetWidth, dummyElement.offsetHeight];
+    let result = [dummyElement.offsetWidth, dummyElement.offsetHeight];
     body.removeChild(dummyParagraph);
     return result;
 }
@@ -267,95 +267,76 @@ class Drawing {
         path.close();
     }
 
-    addText({text, color, fontFamily, fontSize, space, position, point}) {
+    addText({text, color, fontFamily, fontSize, space, position, point, debug}) {
         fontFamily = fontFamily || "sans-serif";
         fontSize = fontSize || "12px";
         color = color || "#000";
         if (space === undefined) {
             space = 5;
         }
-        let [x,y] = this.getContextCoord(point).xy;
         let [width, height] = determineFontSize(fontFamily, fontSize, text);
-        let [xmin, xmax, ymin, ymax] = [x,x,y,y];
+        let [xmin, ymin] = this.getContextCoord(point).xy;
         switch (position) {
             case POS_BOTTOMLEFT:
-            case POS_BOTTOM:
-            case POS_BOTTOMRIGHT:
-                {
-                    ymin = y + space;
-                    y = y + space + height;
-                }
-                break;
             case POS_LEFT:
-            case POS_CENTER:
-            case POS_RIGHT:
-                {
-                    ymin = y - height/2;
-                    y = y + height/2;
-                }
-                break;
             case POS_TOPLEFT:
+                xmin = xmin - space - width;
+                break;
+            case POS_BOTTOM:
+            case POS_CENTER:
             case POS_TOP:
+                xmin = xmin - width/2;
+                break;
+            case POS_BOTTOMRIGHT:
+            case POS_RIGHT:
             case POS_TOPRIGHT:
-                {
-
-                    ymin = y - space - height;
-                    y = y - space;
-                }
+                xmin = xmin + space;
                 break;
             case POS_NONE:
             default:
-                {
-                    return;
-                }
+                return;
                 break;
         }
         switch (position) {
-            case POS_BOTTOMLEFT:
-            case POS_LEFT:
             case POS_TOPLEFT:
-                {
-                    xmin = x - space - width;
-                    x = x - space - width;
-                }
-                break;
-            case POS_BOTTOM:
-            case POS_CENTER:
             case POS_TOP:
-                {
-                    xmin = x - width/2;
-                    x = x - width/2;
-                }
-                break;
-            case POS_BOTTOMRIGHT:
-            case POS_RIGHT:
             case POS_TOPRIGHT:
-                {
-                    xmin = x + space;
-                    x = x + space;
-                }
+                ymin = ymin - space - height;
+                break;
+            case POS_LEFT:
+            case POS_CENTER:
+            case POS_RIGHT:
+                ymin = ymin - height/2;
+                break;
+            case POS_BOTTOMLEFT:
+            case POS_BOTTOM:
+            case POS_BOTTOMRIGHT:
+                ymin = ymin + space;
                 break;
             case POS_NONE:
-            efault:
-                {
-                    return;
-                }
+            default:
+                return;
                 break;
         }
         this._context.strokeStyle = color;
         this._context.beginPath();
         this._context.font = fontSize + " " + fontFamily;
         this._context.fillStyle = color;
-        this._context.fillText(text, x, y);
-
-        this._context.rect(xmin, ymin, width, height)
-        this._context.stroke();
+        this._context.fillText(text, xmin, ymin+height);
         this._context.closePath();
+
+        if (debug !== undefined) {
+            this._context.strokeStyle = debug;
+            this._context.beginPath();
+            this._context.rect(xmin, ymin, width, height)
+            this._context.stroke();
+            this._context.closePath();
+        }
     }
     
 }
 
-// const CanvasDrawing = {Vector, Drawing, getXY};
 window.CanvasDrawing = { ...(window.CanvasDrawing || {}), Vector, Drawing, getXY };
+window.CanvasDrawing = { ...(window.CanvasDrawing || {}), POS_TOPRIGHT, POS_TOP, POS_TOPLEFT, POS_RIGHT, POS_CENTER, POS_LEFT, POS_BOTTOMRIGHT, POS_BOTTOM, POS_BOTTOMLEFT, POS_NONE };
 
 })(this);
