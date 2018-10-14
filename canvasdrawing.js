@@ -1,6 +1,17 @@
 (function(){
 let window = this;
 
+const POS_TOPRIGHT= "9";
+const POS_TOP = "8";
+const POS_TOPLEFT = "7";
+const POS_RIGHT = "6";
+const POS_CENTER = "5";
+const POS_LEFT = "4";
+const POS_BOTTOMRIGHT = "3";
+const POS_BOTTOM = "2";
+const POS_BOTTOMLEFT = "1";
+const POS_NONE = "0";
+
 const getXY = (x,y) => {
     if (x.__proto__.constructor === Vector) {
         return [x.x, x.y];
@@ -9,6 +20,20 @@ const getXY = (x,y) => {
         return [x[0],x[1]];
     }
     return [x,y];
+}
+
+
+const determineFontSize = (family, size, text) => {
+    var fontStyle = "font-family: " + family + "; font-size: " + size + ";"
+    var body = window.document.getElementsByTagName("body")[0];
+    var dummy = window.document.createElement("span");
+    var dummyText = window.document.createTextNode(text);
+    dummy.appendChild(dummyText);
+    dummy.setAttribute("style", fontStyle);
+    body.appendChild(dummy);
+    var result = [dummy.offsetWidth, dummy.offsetHeight];
+    body.removeChild(dummy);
+    return result;
 }
 
 class Vector{
@@ -238,6 +263,78 @@ class Drawing {
         let path = this.getPath({color});
         path.segmentLineLoop(points);
         path.close();
+    }
+
+    addText({text, color, fontFamily, fontSize, space, position, point}) {
+        fontFamily = fontFamily || "sans-serif";
+        fontSize = fontSize || "12px";
+        color = color || "#000";
+        if (space === undefined) {
+            space = 5;
+        }
+        let [x,y] = this.getContextCoord(point).xy;
+        let [width, height] = determineFontSize(fontFamily, fontSize, text);
+        switch (position) {
+            case POS_BOTTOMLEFT:
+            case POS_BOTTOM:
+            case POS_BOTTOMRIGHT:
+                {
+                    y = y + space + height;
+                }
+                break;
+            case POS_LEFT:
+            case POS_CENTER:
+            case POS_RIGHT:
+                {
+                    y = y + height/2;
+                }
+                break;
+            case POS_TOPLEFT:
+            case POS_TOP:
+            case POS_TOPRIGHT:
+                {
+                    y = y - space;
+                }
+                break;
+            case POS_NONE:
+            default:
+                {
+                    return;
+                }
+                break;
+        }
+        switch (position) {
+            case POS_BOTTOMLEFT:
+            case POS_LEFT:
+            case POS_TOPLEFT:
+                {
+                    x = x - space - width;
+                }
+                break;
+            case POS_BOTTOM:
+            case POS_CENTER:
+            case POS_TOP:
+                {
+                    x = x - width/2;
+                }
+                break;
+            case POS_BOTTOMRIGHT:
+            case POS_RIGHT:
+            case POS_TOPRIGHT:
+                {
+                    x = x + space;
+                }
+                break;
+            case POS_NONE:
+            default:
+                {
+                    return;
+                }
+                break;
+        }
+        this._context.fillStyle = color;
+        this._context.font = fontSize + " " + fontFamily;
+        this._context.fillText(text, x, y);
     }
     
 }
