@@ -20,6 +20,10 @@ let minDim = Math.min(width, height);
 let drawing = new Drawing({ canvas: document.getElementById('item'), height, width, origin: [width/2,height/2], mapx: minDim/2, mapy: -minDim/2, bgcolor: '#e0e0cc' });
 
 const drawFrame = (k)=> {
+    let [width, height] = [window.innerWidth, window.innerHeight];
+    let minDim = Math.min(width, height);
+    drawing.reinit({ height, width, origin: [width/2,height/2], mapx: minDim/2, mapy: -minDim/2})
+
     let [n,m] = [3*(k-1)-13, k];
     drawTimeTable(drawing, n, m, {color: '#331108'});
 
