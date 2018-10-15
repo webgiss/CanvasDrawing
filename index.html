@@ -27,7 +27,7 @@ const drawFrame = (k)=> {
     let [n,m] = [3*(k-1)-13, k];
     drawTimeTable(drawing, n, m, {color: '#331108'});
 
-    let text = `${n} - ${m}`;
+    let text = `x${m} [${n}]`;
     drawing.addText({text, fontFamily:'sans-serif', fontSize:'14px', color:'#442211', point:[1,-1], position: '7'});
 }
 
