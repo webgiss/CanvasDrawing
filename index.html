@@ -35,19 +35,18 @@ let animationParams = {
     action: ({value}) => {
         drawFrame(value);
     },
-    frameTime: 0.07,
+    frameTime: 0.01,
 };
 
 let p = Promise.resolve();
 
-const addActions = (p) => {
-    p = p.then(() => animate({...animationParams,from: 512,to: 13}));
-    p = p.then(() => animate({...animationParams,from: 13,to: 512}));
-    return p;
+const doLoop = () => {
+    let p = Promise.resolve();
+    p = p.then(() => animate({...animationParams,from: 250,to: 50}));
+    p = p.then(() => animate({...animationParams,from: 50,to: 250}));
+    p.then(()=>doLoop());
 }
 
-for (let i=0; i<10; i++){
-    p = addActions(p);
-}
+doLoop();
 
 </script>
