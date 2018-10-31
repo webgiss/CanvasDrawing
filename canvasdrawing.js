@@ -232,7 +232,6 @@ class Drawing {
  
     _arc(center, length, startAngle, stopAngle){
         if (this._context !== undefined) {
-            console.log({center, length, startAngle, stopAngle});
             this._context.arc(
                 ...this.getContextCoord(center).xy, 
                 this.getContextDistance(length),
