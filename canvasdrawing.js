@@ -12,6 +12,10 @@ const POS_BOTTOM = "2";
 const POS_BOTTOMLEFT = "1";
 const POS_NONE = "0";
 
+const ALIGN_LEFT = "ALIGN_LEFT";
+const ALIGN_RIGHT = "ALIGN_RIGHT";
+const ALIGN_CENTER = "ALIGN_CENTER";
+
 const getXY = (x,y) => {
     if (x.__proto__.constructor === Vector) {
         return [x.x, x.y];
@@ -37,6 +41,15 @@ const determineFontSize = (family, size, text) => {
     body.removeChild(dummyParagraph);
     return result;
 }
+
+const determineFontSizeMultiline = (fontFamily, fontSize, text) => {
+    let lines = text.split('\n').map(line => ({line, size:determineFontSize(fontFamily, fontSize, line)}));
+    let width = lines.reduce((pwidth, line) => Math.max(pwidth,line.size[0]), 0);
+    let height = lines.reduce((pheight, line) => pheight+line.size[1], 0);
+    let global = [width, height];
+    return {lines, global};
+}
+
 
 class Vector{
     constructor(x,y,isPolar){
@@ -266,14 +279,17 @@ class Drawing {
         path.close();
     }
 
-    addText({text, color, fontFamily, fontSize, space, position, point, debug}) {
+    addText({text, color, fontFamily, fontSize, space, position, point, debug, textAlign}) {
         fontFamily = fontFamily || "sans-serif";
         fontSize = fontSize || "12px";
+        textAlign = textAlign || ALIGN_LEFT;
         color = color || "#000";
         if (space === undefined) {
             space = 5;
         }
-        let [width, height] = determineFontSize(fontFamily, fontSize, text);
+        let size = determineFontSizeMultiline(fontFamily, fontSize, text);
+
+        let [width, height] = size.global;
         let [xmin, ymin] = this.getContextCoord(point).xy;
         switch (position) {
             case POS_BOTTOMLEFT:
@@ -321,7 +337,20 @@ class Drawing {
         this._context.beginPath();
         this._context.font = fontSize + " " + fontFamily;
         this._context.fillStyle = color;
-        this._context.fillText(text, xmin, ymin+height);
+        let deltay = 0;
+        for (let lineInfo of size.lines) {
+            let deltax = 0;
+            switch (textAlign) {
+                case ALIGN_CENTER:
+                    deltax = (width - lineInfo.size[0])/2;
+                    break;
+                case ALIGN_RIGHT:
+                    deltax = width - lineInfo.size[0];
+                    break;
+            }
+            this._context.fillText(lineInfo.line, xmin+deltax, ymin+deltay+lineInfo.size[1]);
+            deltay = deltay+lineInfo.size[1];
+        }
         this._context.closePath();
 
         if (debug !== undefined) {
