@@ -17,7 +17,7 @@ const ALIGN_RIGHT = "ALIGN_RIGHT";
 const ALIGN_CENTER = "ALIGN_CENTER";
 
 const getXY = (x,y) => {
-    if (x.__proto__.constructor === Vector) {
+    if (x.__proto__.constructor === Vector || x.__proto__.constructor === CanvasVector) {
         return [x.x, x.y];
     }
     if (typeof(x)===typeof([])) {
@@ -51,7 +51,7 @@ const determineFontSizeMultiline = (fontFamily, fontSize, text) => {
 }
 
 
-class Vector{
+class Vector {
     constructor(x,y,isPolar){
         if (isPolar) {
             [this._x,this._y] = [x*Math.cos(y), x*Math.sin(y)];
@@ -77,6 +77,25 @@ class Vector{
         return new Vector(this.x*x-this.y*y, this.x*y+this.y*x);
     }
 }
+
+class CanvasVector extends Vector {
+    constructor(...params){
+        super(...params);
+    }
+    add(x,y) {
+        [x,y]=getXY(x,y);
+        return new CanvasVector(this.x+x, this.y+y);
+    }
+    sub(x,y) {
+        [x,y]=getXY(x,y);
+        return new CanvasVector(this.x-x, this.y-y);
+    }
+    mul(x,y) {
+        [x,y]=getXY(x,y);
+        return new CanvasVector(this.x*x-this.y*y, this.x*y+this.y*x);
+    }
+}
+
 class Path {
     constructor({drawing, color}) {
         this._drawing = drawing;
@@ -140,6 +159,7 @@ class Path {
         }
     }
 }
+
 class Drawing {
     constructor(params) {
         this.reinit(params);
@@ -161,10 +181,10 @@ class Drawing {
             needClear = true;
         }
         if (origin !== undefined) {
-            this._origin = new Vector(origin);
+            this._origin = new CanvasVector(origin);
         }
         if (self._origin === undefined) {
-            self._origin = new Vector([0,0]);
+            self._origin = new CanvasVector([0,0]);
         }
        
         if (mapx !== undefined) {
@@ -180,7 +200,7 @@ class Drawing {
             self._mapy === 1;
         }
         
-        this._map = new Vector(self._mapx,self._mapy);
+        this._map = new CanvasVector(self._mapx,self._mapy);
         
         if (width === undefined) {
             this._width = this._canvas.width;
@@ -211,10 +231,16 @@ class Drawing {
         let bgcolor = this._bgcolor || '#fff';
         this._rect(0,0,this._width,this._height, bgcolor);
     }
+
     getContextCoord(x,y) {
-        let v = new Vector(x,y);
-        return this._origin.add(this._map.x*v.x, this._map.y*v.y);
+        if (x.__proto__.constructor === CanvasVector) {
+            return new CanvasVector(x,y);
+        } else {
+            let v = new Vector(x,y);
+            return this._origin.add(this._map.x*v.x, this._map.y*v.y);
+        }
     }
+
     getContextDistance(x) {
         return this.getContextCoord(0,x).sub(this.getContextCoord(0,0)).length;
     }
@@ -335,6 +361,7 @@ class Drawing {
         }
         this._context.strokeStyle = color;
         this._context.beginPath();
+        this._context.textBaseline="bottom";
         this._context.font = fontSize + " " + fontFamily;
         this._context.fillStyle = color;
         let deltay = 0;
@@ -364,7 +391,7 @@ class Drawing {
     
 }
 
-window.CanvasDrawing = { ...(window.CanvasDrawing || {}), Vector, Drawing, getXY };
+window.CanvasDrawing = { ...(window.CanvasDrawing || {}), Vector, CanvasVector, Drawing, getXY };
 window.CanvasDrawing = { ...(window.CanvasDrawing || {}), POS_TOPRIGHT, POS_TOP, POS_TOPLEFT, POS_RIGHT, POS_CENTER, POS_LEFT, POS_BOTTOMRIGHT, POS_BOTTOM, POS_BOTTOMLEFT, POS_NONE };
 
 })(this);

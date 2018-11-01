@@ -13,7 +13,7 @@
     </body>
 </html>
 <script>
-let {Drawing, Vector, animate, drawTimeTable} = CanvasDrawing;
+let {Drawing, Vector, CanvasVector, animate, drawTimeTable} = CanvasDrawing;
 // let [width, height] = [1920,1080];
 let [width, height] = [window.innerWidth, window.innerHeight];
 let minDim = Math.min(width, height);
@@ -28,6 +28,9 @@ const drawFrame = (k)=> {
     drawTimeTable(drawing, n, m, {color: '#331108'});
 
     let text = `x${m} [${n}]`;
+    window.x = new CanvasVector([0,0]);
+    window.drawing = drawing;
+    drawing.addText({text, fontFamily:'sans-serif', fontSize:'14px', color:'#112244', point:new CanvasVector([0,0]), position: '3'});
     drawing.addText({text, fontFamily:'sans-serif', fontSize:'14px', color:'#442211', point:[1,-1], position: '7'});
 }
 
