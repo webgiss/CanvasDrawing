@@ -68,7 +68,7 @@ class Path {
     constructor({drawing, color}) {
         this._drawing = drawing;
         this._context = this._drawing.context;
-        this._color = color || BLACK;
+        this._color = color || '#000';
         this._actions = [];
         this._firstPoint = null;
         this._lastPoint = null;
