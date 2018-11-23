@@ -16,6 +16,13 @@ const ALIGN_LEFT = "ALIGN_LEFT";
 const ALIGN_RIGHT = "ALIGN_RIGHT";
 const ALIGN_CENTER = "ALIGN_CENTER";
 
+const getVector = (x,y,isPolar) => {
+    if (x.__proto__.constructor === CanvasVector) {
+        return new CanvasVector(x);
+    }
+    return new Vector(x,y,isPolar);
+}
+
 const getXY = (x,y) => {
     if (x.__proto__.constructor === Vector || x.__proto__.constructor === CanvasVector) {
         return [x.x, x.y];
@@ -107,7 +114,7 @@ class Path {
     }
     
     usePoint(x,y){
-        let point = new Vector(x,y);
+        let point = getVector(x,y);
         if (this._firstPoint === null) {
           this._firstPoint = point;
         }
@@ -278,6 +285,34 @@ class Drawing {
                 stopAngle
             );
         }
+    }
+    
+    filledRectangle({ point0, point1, color }){
+        let [x0, y0] = this.getContextCoord(point0).xy;
+        let [x1, y1] = this.getContextCoord(point1).xy;
+        let xmin = Math.min(x0,x1);
+        let ymin = Math.min(y0,y1);
+        let xmax = Math.max(x0,x1);
+        let ymax = Math.max(y0,y1);
+
+        this._rect(xmin,ymin,xmax-xmin,ymax-ymin,color || 'black');
+    }
+
+    rectangle({ point0, point1, color }){
+        let path = this.getPath({color});
+        let [x0, y0] = this.getContextCoord(point0).xy;
+        let [x1, y1] = this.getContextCoord(point1).xy;
+        let pointA = new CanvasVector(x0,y0);
+        let pointB = new CanvasVector(x0,y1);
+        let pointC = new CanvasVector(x1,y1);
+        let pointD = new CanvasVector(x1,y0);
+
+        path.moveTo(pointA);
+        path.lineTo(pointB);
+        path.lineTo(pointC);
+        path.lineTo(pointD);
+        path.lineLoop();
+        path.close();
     }
     
     line({ point0, point1, color }){

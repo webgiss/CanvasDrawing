@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+    <head>
+        <script src='canvasdrawing.js'></script>
+        <script src='drawTimeTable.js'></script>
+        <script src='animate.js'></script>
+        <style>
+            body, canvas { margin:0; padding:0; overflow: hidden;}
+        </style>
+    </head>
+    <body>
+        <canvas id='item'></canvas>
+    </body>
+</html>
+<script>
+let {Drawing, Vector, CanvasVector, animate, drawTimeTable} = CanvasDrawing;
+// let [width, height] = [1920,1080];
+let [width, height] = [window.innerWidth, window.innerHeight];
+let minDim = Math.min(width, height);
+let drawing = new Drawing({ 
+    canvas: document.getElementById('item'), 
+    height, 
+    width, 
+    origin: [width/2,height/2], 
+    mapx: (minDim/2)/50, 
+    mapy: -(minDim/2)/50, 
+    bgcolor: '#e0e0cc' 
+});
+
+
+const drawFrame = (k)=> {
+    let kk=k;
+    let r = Math.floor(Math.sqrt(kk));
+    let mr = r-(r+1)%2;
+    let mmr = mr+1;
+    let b = mr*mr;
+    let xb = (mr-1)/2;
+    let yb = (mr+1)/2;
+    let d = kk-b;
+    let decl = d%mmr;
+    let phase = (d-decl)/mmr;
+
+    let [x,y] = [yb,yb];
+
+    if (phase>=1) {
+        x = x-mmr;
+    }
+    
+    if (phase>=2) {
+        y = y-mmr;
+    }
+    if (phase>=3) {
+        x = x+mmr;
+    }
+
+    if (phase===0) {
+        x = x-decl-1;
+    }
+    if (phase===1) {
+        y = y-decl-1;
+    }
+    
+    if (phase===2) {
+        x = x+decl+1;
+    }
+    if (phase===3) {
+        y = y+decl+1;
+    }
+
+    if (k%6===1 || k%6===5) {
+        drawing.filledRectangle({ point0:new Vector(x,y), point1:new Vector(x+1,y+1), color:'#993324' });
+    }
+    if (k%24===0) {
+        drawing.filledRectangle({ point0:new Vector(x,y), point1:new Vector(x+1,y+1), color:'#ccbb00' });
+    }
+
+    drawing.rectangle({ point0:new Vector(x,y), point1:new Vector(x+1,y+1), color:'#331108' });
+    //drawing.addText({ text: ''+k, color: '#331108', fontFamily: 'Calibri', fontSize: '10px', position: '5', point: new Vector(x+0.5, y+0.5) });
+}
+
+for (let index=0; index<50000; index++) {
+    drawFrame(index);
+}
+
+</script>
