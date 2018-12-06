@@ -1,9 +1,7 @@
 (function(){
 let window = this;
 
-const { Vector } = window.CanvasDrawing;
-
-const getRange = (n) => [...Array(n).keys()];
+const { Vector, getRange } = window.CanvasDrawing;
 
 const getPoints = (range) => range.map(i => new Vector(0.98, 2 * Math.PI * i / range.length, true));
 

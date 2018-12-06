@@ -16,6 +16,26 @@ const ALIGN_LEFT = "ALIGN_LEFT";
 const ALIGN_RIGHT = "ALIGN_RIGHT";
 const ALIGN_CENTER = "ALIGN_CENTER";
 
+const getXRange = function*(min,max,step) {
+    if (step === undefined) { 
+        step = 1; 
+    }
+    if (max===undefined) { 
+        [min,max]=[0,min]
+    } 
+    if (step === 0) { 
+        return; 
+    }; 
+    const cond = (step > 0) ? (x => x<max) : (x => x>max); 
+    let current=min; 
+    while(cond(current)) { 
+        yield current; 
+        current+=step; 
+    }
+};
+
+const getRange = (min,max,step) => [...getXRange(min,max,step)];
+
 const getVector = (x,y,isPolar) => {
     if (x.__proto__.constructor === CanvasVector) {
         return new CanvasVector(x);
@@ -104,10 +124,11 @@ class CanvasVector extends Vector {
 }
 
 class Path {
-    constructor({drawing, color}) {
+    constructor({drawing, color, fill}) {
         this._drawing = drawing;
         this._context = this._drawing.context;
         this._color = color || '#000';
+        this._fill = fill;
         this._actions = [];
         this._firstPoint = null;
         this._lastPoint = null;
@@ -150,7 +171,7 @@ class Path {
         }
     }
     segmentLineLoop (points) { return this.segmentLine(points, true); }
-    arc (center, length, startAngle,stopAngle) {
+    arc (center, length, startAngle, stopAngle) {
         center = this.usePoint(center);
         this._actions.push(()=>{
             this._drawing._arc(center, length, startAngle, stopAngle);
@@ -161,6 +182,10 @@ class Path {
             this._context.strokeStyle = this._color;
             this._context.beginPath();
             this._actions.map(action=>action());
+            if (this._fill !== undefined) {
+                this._context.fillStyle = this._fill;
+                this._context.fill();
+            }
             this._context.stroke();
             this._context.closePath();
         }
@@ -180,9 +205,16 @@ class Drawing {
     get context() {
         return this._context;
     }
-    reinit({canvas, height, width, origin, mapx, mapy, bgcolor}) {
+    reinit({canvas, canvasId, height, width, origin, mapx, mapy, bgcolor}) {
         let needClear = false;
 
+        if (canvasId !== undefined) {
+            let canvas = document.getElementById(canvasId);
+            if (canvas !== undefined) {
+                this._canvas = canvas;
+                needClear = true;
+            }
+        }
         if (canvas !== undefined) {
             this._canvas = canvas;
             needClear = true;
@@ -201,12 +233,12 @@ class Drawing {
             self._mapy = mapy;
         }
         if (self._mapx === undefined) {
-            self._mapx === 1;
+            self._mapx = 1;
         }
         if (self._mapy === undefined) {
-            self._mapy === 1;
+            self._mapy = 1;
         }
-        
+
         this._map = new CanvasVector(self._mapx,self._mapy);
         
         if (width === undefined) {
@@ -253,9 +285,9 @@ class Drawing {
     }
  
     getPath(params) {
-        let {color} = params ||{};
+        let {color, fill} = params ||{};
       
-        return new Path({drawing: this, color});
+        return new Path({drawing: this, color, fill});
     }
     
     _rect(x,y,w,h,c) {
@@ -298,8 +330,8 @@ class Drawing {
         this._rect(xmin,ymin,xmax-xmin,ymax-ymin,color || 'black');
     }
 
-    rectangle({ point0, point1, color }){
-        let path = this.getPath({color});
+    rectangle({ point0, point1, color, fill }){
+        let path = this.getPath({color, fill});
         let [x0, y0] = this.getContextCoord(point0).xy;
         let [x1, y1] = this.getContextCoord(point1).xy;
         let pointA = new CanvasVector(x0,y0);
@@ -322,8 +354,8 @@ class Drawing {
         path.close();
     }
     
-    circle({center, length, color}) {
-        let path = this.getPath({color});
+    circle({center, length, color, fill}) {
+        let path = this.getPath({color, fill});
         path.arc(center, length, 0, 2*Math.PI);
         path.close();
     }
@@ -334,8 +366,8 @@ class Drawing {
         path.close();
     }
     
-    segmentLineLoop({points, color}) {
-        let path = this.getPath({color});
+    segmentLineLoop({points, color, fill}) {
+        let path = this.getPath({color, fill});
         path.segmentLineLoop(points);
         path.close();
     }
@@ -426,7 +458,7 @@ class Drawing {
     
 }
 
-window.CanvasDrawing = { ...(window.CanvasDrawing || {}), Vector, CanvasVector, Drawing, getXY };
+window.CanvasDrawing = { ...(window.CanvasDrawing || {}), Vector, CanvasVector, Drawing, getXY, getRange, getXRange };
 window.CanvasDrawing = { ...(window.CanvasDrawing || {}), POS_TOPRIGHT, POS_TOP, POS_TOPLEFT, POS_RIGHT, POS_CENTER, POS_LEFT, POS_BOTTOMRIGHT, POS_BOTTOM, POS_BOTTOMLEFT, POS_NONE };
 
 })(this);

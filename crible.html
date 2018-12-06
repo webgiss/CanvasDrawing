@@ -14,72 +14,194 @@
 </html>
 <script>
 let {Drawing, Vector, CanvasVector, animate, drawTimeTable} = CanvasDrawing;
-// let [width, height] = [1920,1080];
-let [width, height] = [window.innerWidth, window.innerHeight];
-let minDim = Math.min(width, height);
-let drawing = new Drawing({ 
+
+let size = 40;
+
+let background_color = '#e0e0cc';
+let non_2_3_multiple_color = '#ccbb00';
+let prime_color = '#aa6644';
+// non_2_3_multiple_color = prime_color;
+let rectangle_color = '#ccbb00';
+let text_color = '#331108';
+let spiral_color = '#000000';
+let text_size = 10;
+
+let ssize = 80;
+let scount = ssize*ssize;
+let spiral_offset = 1;
+
+let display_non_2_3_multiple = false;
+let display_prime = true;
+let display_spiral = false;
+let display_text = false;
+let display_rectangle = true;
+
+let drawing = new Drawing({
     canvas: document.getElementById('item'), 
-    height, 
-    width, 
-    origin: [width/2,height/2], 
-    mapx: (minDim/2)/50, 
-    mapy: -(minDim/2)/50, 
-    bgcolor: '#e0e0cc' 
 });
 
+let primes = undefined;
 
-const drawFrame = (k)=> {
-    let kk=k;
-    let r = Math.floor(Math.sqrt(kk));
-    let mr = r-(r+1)%2;
-    let mmr = mr+1;
-    let b = mr*mr;
-    let xb = (mr-1)/2;
-    let yb = (mr+1)/2;
-    let d = kk-b;
-    let decl = d%mmr;
-    let phase = (d-decl)/mmr;
-
-    let [x,y] = [yb,yb];
-
-    if (phase>=1) {
-        x = x-mmr;
+const draw = ({drawing, ssize, scount, size, spiral_offset, display_non_2_3_multiple, display_prime, display_rectangle, display_spiral, display_text}) => {
+    ssize = 2*size;
+    scount = ssize*ssize;
+    console.log(JSON.stringify({spiral_offset}))
+    let [width, height] = [window.innerWidth, window.innerHeight];
+    let minDim = Math.min(width, height);
+    drawing.reinit({
+        height,
+        width,
+        origin: [width/2,height/2], 
+        mapx: (minDim/2)/size, 
+        mapy: -(minDim/2)/size, 
+        bgcolor: background_color,
+    });
+    
+    if (primes === undefined || primes.length <= scount) {
+        primes = [...Array(scount).keys()];
+    
+        primes[1] = 0;
+        let index = 2;
+    
+        while (index<ssize) {
+            if (primes[index] > 0) {
+                for(let i=index*index;i<scount;i+=index) { 
+                primes[i] = 0; 
+                }
+            }
+    
+            index++;
+        }
     }
     
-    if (phase>=2) {
-        y = y-mmr;
-    }
-    if (phase>=3) {
-        x = x+mmr;
-    }
-
-    if (phase===0) {
-        x = x-decl-1;
-    }
-    if (phase===1) {
-        y = y-decl-1;
+    const drawNumber = (k)=> {
+        let kk=k-spiral_offset;
+        let r = Math.floor(Math.sqrt(kk));
+        let mr = r-(r+1)%2;
+        let mmr = mr+1;
+        let b = mr*mr;
+        let yb = (mr+1)/2;
+        let d = kk-b;
+        let decl = d%mmr;
+        let phase = (d-decl)/mmr;
+    
+        let [x,y] = [yb,-yb];
+    
+        if (phase>=1) {
+            y = y+mmr;
+        }
+        
+        if (phase>=2) {
+            x = x-mmr;
+        }
+    
+        if (phase>=3) {
+            y = y-mmr;
+        }
+    
+        switch (phase) {
+            case 0:
+                y = y+decl+1;
+                break;
+            case 1:
+                x = x-decl-1;
+                break;
+            case 2:
+                y = y-decl-1;
+                break;
+            case 3:
+                x = x+decl+1;
+                break;
+        }
+    
+        if (display_non_2_3_multiple) {
+            if (k%6===1 || k%6===5) {
+                drawing.filledRectangle({ point0:new Vector(x,y), point1:new Vector(x+1,y+1), color:non_2_3_multiple_color });
+            }
+        }
+    
+        if (display_prime) {
+            if (primes[k]!==0) {
+                drawing.filledRectangle({ point0:new Vector(x,y), point1:new Vector(x+1,y+1), color:prime_color });
+            }
+        }
+    
+        if (display_rectangle) {
+            drawing.rectangle({ point0:new Vector(x,y), point1:new Vector(x+1,y+1), color:rectangle_color });
+        }
+    
+        if (display_text) {
+            drawing.addText({ text: ''+k, color: text_color, fontFamily: 'Calibri', fontSize: text_size+'px', position: '5', point: new Vector(x+0.5, y+0.5) });
+        }
     }
     
-    if (phase===2) {
-        x = x+decl+1;
+    for (let index=spiral_offset; index<scount; index++) {
+        drawNumber(index);
     }
-    if (phase===3) {
-        y = y+decl+1;
+    
+    if (display_spiral) {
+        let x=1
+        let y=1
+        let index=1
+    
+        while (index<=ssize) {
+            drawing.line({point0:[x,y],point1:[x-index,y],color:spiral_color})
+            x=x-index
+            drawing.line({point0:[x,y],point1:[x,y-index],color:spiral_color})
+            y=y-index
+    
+            index=index+1
+    
+            drawing.line({point0:[x,y],point1:[x+index,y],color:spiral_color})
+            x=x+index
+            drawing.line({point0:[x,y],point1:[x,y+index],color:spiral_color})
+            y=y+index
+    
+            index=index+1
+        }
     }
-
-    if (k%6===1 || k%6===5) {
-        drawing.filledRectangle({ point0:new Vector(x,y), point1:new Vector(x+1,y+1), color:'#993324' });
-    }
-    if (k%24===0) {
-        drawing.filledRectangle({ point0:new Vector(x,y), point1:new Vector(x+1,y+1), color:'#ccbb00' });
-    }
-
-    drawing.rectangle({ point0:new Vector(x,y), point1:new Vector(x+1,y+1), color:'#331108' });
-    //drawing.addText({ text: ''+k, color: '#331108', fontFamily: 'Calibri', fontSize: '10px', position: '5', point: new Vector(x+0.5, y+0.5) });
 }
 
-for (let index=0; index<50000; index++) {
-    drawFrame(index);
-}
+const keyEvent = e => {
+    switch (e.key) {
+        case "ArrowUp":
+            spiral_offset += 1;
+            break;
+        case "ArrowDown":
+            spiral_offset -= 1;
+            break;
+        case "ArrowLeft":
+            spiral_offset -= 1;
+            break;
+        case "ArrowRight":
+            spiral_offset += 1;
+            break;
+        case "+":
+            size += 1;
+            break;
+        case "-":
+            size -= 1;
+            break;
+        case "*":
+            display_non_2_3_multiple = !display_non_2_3_multiple;
+            break;
+        case "ù":
+            display_prime = !display_prime;
+            break;
+        case "r":
+            display_rectangle = !display_rectangle;
+            break;
+        case "s":
+            display_spiral = !display_spiral;
+            break;
+        case "t":
+            display_text = !display_text;
+            break;
+  }
+  draw({drawing, ssize, scount, size, spiral_offset, display_non_2_3_multiple, display_prime, display_rectangle, display_spiral, display_text});
+};
+
+document.addEventListener("keydown", keyEvent);
+keyEvent({});
 
 </script>
