@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+    <head>
+        <script src='canvasdrawing.js'></script>
+        <script src='drawTimeTable.js'></script>
+        <script src='animate.js'></script>
+        <script src='keymanager.js'></script>
+        <style>
+            body, canvas { margin:0; padding:0; overflow: hidden;}
+            body { position: relative; }
+            .workspace { top: 0; bottom: 0; left: 0; right: 0; position: fixed; display: block;}
+            .maxwidth #item { max-width: 100vw; }
+            .maxheight #item { max-height: 100vh; }
+        </style>
+    </head>
+    <body class='maxwidth maxheight'>
+        <div class='workspace'>
+        <canvas id='item'></canvas>
+        </div>
+    </body>
+</html>
+<script>
+
+const {Drawing, Vector, CanvasVector, animate, drawTimeTable, getRange} = CanvasDrawing;
+const KeyManager = window.KeyManager;
+
+const text_size = 20;
+const background_color = '#e0e0cc';
+const pen_color = '#331108';
+const circle_color = '#ffffff';
+
+const keyManager = new KeyManager({
+    minx: 1,
+    miny: 1,
+    maxx: 10,
+    maxy: 10,
+    squaresize: 100,
+    res: 400,
+    radius: 0.48,
+    phase: 0,
+    incr: 4,
+});
+
+const drawing = new Drawing({ canvasId : 'item' });
+const body = window.document.getElementsByTagName('body')[0]
+
+body.classList.__proto__.swap = function(className) {
+    if (this.contains(className)) {
+        this.remove(className);
+    } else {
+        this.add(className);
+    }
+}
+
+keyManager
+    .add("ArrowUp", config => config.radius+=0.01)
+    .add("ArrowDown", config => config.radius-=0.01)
+    .add("+", config => config.res+=1)
+    .add("-", config => config.res-=1)
+    .add('x', config => body.classList.swap('maxwidth'))
+    .add('y', config => body.classList.swap('maxheight'))
+    .add("ArrowLeft", config => config.phase-=0.01)
+    .add("ArrowRight", config => config.phase+=0.01)
+    .add('p', config => config.maxx += 1)
+    .add('o', config => config.maxx -= 1)
+    .add('i', config => config.minx += 1)
+    .add('u', config => config.minx -= 1)
+    .add('l', config => config.maxy += 1)
+    .add('k', config => config.maxy -= 1)
+    .add('j', config => config.miny += 1)
+    .add('h', config => config.miny -= 1)
+    .setAction(config => {
+        let [width, height] = [window.innerWidth, window.innerHeight];
+        let minDim = Math.min(width, height);
+        drawing.reinit({ height, width, origin: [width/2,height/2], mapx: minDim/2, mapy: -minDim/2, background_color:'black'});
+
+        let incr = config.incr;
+        for (let x=0; x<drawing.width; x+=incr) {
+            for (let y=0; y<drawing.height; y+=incr) {
+                let cv = new CanvasVector(x,y);
+                let v = drawing.getCoordFromContextCoord(cv);
+                // console.log({cv,v});
+
+                let u = v;
+                let diverge = false;
+                let complexity=0;
+                for (let t=0; t<128; t++) {
+                    u = u.mul(u).sub(v.mul(v)).add(u.mul([0.999,0]));
+
+                    let [xx,yy] = u.xy;
+
+                    complexity++;
+                    if (xx*xx+yy*yy > 4) {
+                        let c=("00"+(255-2*t).toString(16)).substr(-2);
+                        let color='#'+c+c+c;
+
+
+                        drawing.rectangle({ point0: cv, point1: new CanvasVector(x+incr, y+incr), color: color, fill: color });
+                        diverge = true;
+                        break;
+                    }
+                }
+                if (!diverge) {
+                    drawing.rectangle({ point0: cv, point1: new CanvasVector(x+incr, y+incr), color: '#000000', fill: '#000000' });
+                }
+                // console.log('complexity', complexity);
+            };
+        };
+        
+    })
+;
+
+</script>

@@ -280,6 +280,16 @@ class Drawing {
         }
     }
 
+    getCoordFromContextCoord(x,y) {
+        if (x.__proto__.constructor === Vector) {
+            return new Vector(x,y);
+        } else {
+            let v = new CanvasVector(x,y);
+            let [dx,dy] = v.sub(this._origin).xy;
+            return new Vector(dx/this._map.x, dy/this._map.y);
+        }
+    }
+
     getContextDistance(x) {
         return this.getContextCoord(0,x).sub(this.getContextCoord(0,0)).length;
     }
