@@ -30,7 +30,6 @@ const pen_color = '#331108';
 const circle_color = '#ffffff';
 
 const keyManager = new KeyManager({
-    size: 20,
     minx: 1,
     miny: 1,
     maxx: 10,
@@ -70,7 +69,6 @@ keyManager
     .add('j', config => config.miny += 1)
     .add('h', config => config.miny -= 1)
     .setAction(config => {
-        // const ssize = config.size+1;
         const pixelsizex = (config.maxx-config.minx+2)*config.squaresize;
         const pixelsizey = (config.maxy-config.miny+2)*config.squaresize;
 

@@ -1,10 +1,19 @@
 (function(){
     let window = this;
 
+    class Config {
+        log() {
+            console.log(JSON.stringify(this));
+        }
+    }
+
     class KeyManager {
         constructor(config) {
             config = config || {};
-            this._config = config;
+            this._config = new Config();
+            for (let key in config) {
+                this._config[key] = config[key];
+            }
             this._action = null;
             window.keyManagers = window.keyManagers || [];
             window.keyManagers.push(this);
