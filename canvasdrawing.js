@@ -205,7 +205,7 @@ class Drawing {
     get context() {
         return this._context;
     }
-    reinit({canvas, canvasId, height, width, origin, mapx, mapy, bgcolor}) {
+    reinit({canvas, canvasId, height, width, origin, mapx, mapy, corners, bgcolor}) {
         let needClear = false;
 
         if (canvasId !== undefined) {
@@ -215,31 +215,66 @@ class Drawing {
                 needClear = true;
             }
         }
+		
         if (canvas !== undefined) {
             this._canvas = canvas;
             needClear = true;
         }
-        if (origin !== undefined) {
-            this._origin = new CanvasVector(origin);
-        }
-        if (self._origin === undefined) {
-            self._origin = new CanvasVector([0,0]);
-        }
-       
-        if (mapx !== undefined) {
-            self._mapx = mapx;
-        }
-        if (mapy !== undefined) {
-            self._mapy = mapy;
-        }
-        if (self._mapx === undefined) {
-            self._mapx = 1;
-        }
-        if (self._mapy === undefined) {
-            self._mapy = 1;
-        }
+		
+		if (corners === undefined) {
+			if (origin !== undefined) {
+				this._origin = new CanvasVector(origin);
+                needClear = true;
+			}
+			
+			if (this._origin === undefined) {
+				this._origin = new CanvasVector([0,0]);
+                needClear = true;
+			}
+		
+			if (mapx !== undefined) {
+				this._mapx = mapx;
+                needClear = true;
+			}
+			if (mapy !== undefined) {
+				this._mapy = mapy;
+                needClear = true;
+			}
+			if (this._mapx === undefined) {
+				this._mapx = 1;
+                needClear = true;
+			}
+			if (this._mapy === undefined) {
+				this._mapy = 1;
+                needClear = true;
+			}
+		} else {
+			let corner0 = corners[0];
+			let corner1 = corners[1];
+			let [c0x, c0y] = corner0.xy;
+			let [c1x, c1y] = corner1.xy;
+			let [minX, maxX] = [Math.min(c0x, c1x), Math.max(c0x, c1x)];
+			let [minY, maxY] = [Math.min(c0y, c1y), Math.max(c0y, c1y)];
+			let [dx, dy] = [maxX-minX, maxY-minY];
+			if (dx*height < dy*width) {
+                this._mapy = -height/dy;
+                this._mapx = -this.mapy;
 
-        this._map = new CanvasVector(self._mapx,self._mapy);
+                let Ox = (width-dx*this._mapx)/2-this._mapx*minX;
+                let Oy = -this._mapy*maxY;
+                this._origin = new Vector(Ox, Oy);
+			} else {
+                this._mapx = width/dx;
+                this._mapy = -this.mapx;
+
+                let Ox = -this._mapx*minX;
+                let Oy = (height+dy*this._mapy)/2-this._mapy*maxY;
+                this._origin = new Vector(Ox, Oy);
+            }
+            needClear = true;
+		}
+
+        this._map = new CanvasVector(this._mapx,this._mapy);
         
         if (width === undefined) {
             this._width = this._canvas.width;
@@ -266,6 +301,18 @@ class Drawing {
             this.clear();
         }
     }
+
+    addClickListener(listener) {
+        if (this._canvas) {
+            this._canvas.addEventListener("click", (event) => {
+                let [x,y] = [event.pageX - this._canvas.offsetLeft, event.pageY - this._canvas.offsetTop];
+                let canvasPosition = new CanvasVector(x,y);
+                let position = this.getCoordFromContextCoord(canvasPosition);
+                listener({ canvasPosition, position, event });
+            });
+        }
+    }
+    
     clear() {
         let bgcolor = this._bgcolor || '#fff';
         this._rect(0,0,this._width,this._height, bgcolor);

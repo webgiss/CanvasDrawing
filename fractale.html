@@ -30,19 +30,14 @@ const pen_color = '#331108';
 const circle_color = '#ffffff';
 
 const keyManager = new KeyManager({
-    minx: 1,
-    miny: 1,
-    maxx: 10,
-    maxy: 10,
-    squaresize: 100,
-    res: 400,
-    radius: 0.48,
-    phase: 0,
-    incr: 4,
+    pixelscale: 2,
+    depth: 6,
+    size: 3,
+	julia: false,
 });
 
 const drawing = new Drawing({ canvasId : 'item' });
-const body = window.document.getElementsByTagName('body')[0]
+const body = window.document.getElementsByTagName('body')[0];
 
 body.classList.__proto__.swap = function(className) {
     if (this.contains(className)) {
@@ -52,61 +47,84 @@ body.classList.__proto__.swap = function(className) {
     }
 }
 
+const config = keyManager.config;
+config.clicks = config.clicks || [];
+drawing.addClickListener(({position}) => {
+	console.log(JSON.stringify(position.xy));
+	config.clicks.unshift(position);
+	config.clicks.splice(2);
+});
+
 keyManager
-    .add("ArrowUp", config => config.radius+=0.01)
-    .add("ArrowDown", config => config.radius-=0.01)
-    .add("+", config => config.res+=1)
-    .add("-", config => config.res-=1)
+    .add("ArrowUp", config => config.depth+=1)
+    .add("ArrowDown", config => config.depth-=1)
+    .add("+", config => config.pixelscale+=1)
+    .add("-", config => config.pixelscale-=1)
+    .add("*", config => config.size+=0.1)
+    .add("/", config => config.size-=0.1)
+    .add("j", config => { config.julia=!config.julia; if (config.julia) { config.juliaPoint=config.clicks[0] || new Vector([0.4974874371859297,0.5540201005025126]); }})
     .add('x', config => body.classList.swap('maxwidth'))
     .add('y', config => body.classList.swap('maxheight'))
-    .add("ArrowLeft", config => config.phase-=0.01)
-    .add("ArrowRight", config => config.phase+=0.01)
-    .add('p', config => config.maxx += 1)
-    .add('o', config => config.maxx -= 1)
-    .add('i', config => config.minx += 1)
-    .add('u', config => config.minx -= 1)
-    .add('l', config => config.maxy += 1)
-    .add('k', config => config.maxy -= 1)
-    .add('j', config => config.miny += 1)
-    .add('h', config => config.miny -= 1)
+    .add('z', config => {
+        if (config.clicks.length >= 2) {
+            drawing.reinit({corners:config.clicks.slice(0,2)});
+        }
+    })
     .setAction(config => {
         let [width, height] = [window.innerWidth, window.innerHeight];
+		console.log('start of render',JSON.stringify({...config, width, height}));
         let minDim = Math.min(width, height);
-        drawing.reinit({ height, width, origin: [width/2,height/2], mapx: minDim/2, mapy: -minDim/2, background_color:'black'});
+        drawing.reinit({ height, width, origin: [width/2,height/2], mapx: minDim/(config.size), mapy: -minDim/(config.size), background_color:'black'});
 
-        let incr = config.incr;
+        let incr = 2 ** config.pixelscale;
+        if (incr<1) {
+            incr = 1;
+        }
+        const itermax = 2**config.depth;;
+        let colorCoef = 1;
+        if (config.depth<6) {
+            colorCoef = 2**(6-config.depth);
+        } else if (config.depth>6) {
+            colorCoef = 1/(2**(config.depth-6));
+        }
+        const getColor = (iter) => {
+            let c=("00"+(255-colorCoef*iter).toString(16)).substr(-2);
+            return '#'+c+c+c;
+        }
+		const colors = getRange(itermax).map(iter => getColor(iter));
+		let v = config.juliaPoint || new Vector([0.4974874371859297,0.5540201005025126]);
         for (let x=0; x<drawing.width; x+=incr) {
             for (let y=0; y<drawing.height; y+=incr) {
                 let cv = new CanvasVector(x,y);
-                let v = drawing.getCoordFromContextCoord(cv);
-                // console.log({cv,v});
+                let cv2 = new CanvasVector(x+incr, y+incr);
+                let u = drawing.getCoordFromContextCoord(cv);
+				
+				if (!config.julia) {
+					v = u;
+					// u = new Vector(0,0);
+				}
 
-                let u = v;
                 let diverge = false;
                 let complexity=0;
-                for (let t=0; t<128; t++) {
-                    u = u.mul(u).sub(v.mul(v)).add(u.mul([0.999,0]));
+                for (let t=0; t<itermax; t++) {
+                    u = u.mul(u).sub(v.mul(v)).add(u.mul([0.9999,0]));
 
                     let [xx,yy] = u.xy;
 
                     complexity++;
                     if (xx*xx+yy*yy > 4) {
-                        let c=("00"+(255-2*t).toString(16)).substr(-2);
-                        let color='#'+c+c+c;
-
-
-                        drawing.rectangle({ point0: cv, point1: new CanvasVector(x+incr, y+incr), color: color, fill: color });
+                        let color=colors[t];
+						drawing.rectangle({ point0: cv, point1: cv2, color: color, fill: color });
                         diverge = true;
                         break;
                     }
                 }
                 if (!diverge) {
-                    drawing.rectangle({ point0: cv, point1: new CanvasVector(x+incr, y+incr), color: '#000000', fill: '#000000' });
+                    drawing.rectangle({ point0: cv, point1: cv2, color: '#000000', fill: '#000000' });
                 }
-                // console.log('complexity', complexity);
             };
         };
-        
+		console.log('stop of render',JSON.stringify({...config, width, height}));
     })
 ;
 
