@@ -1,4 +1,4 @@
-(function(){
+(function () {
     let window = this;
 
     class Config {
@@ -18,15 +18,34 @@
             window.keyManagers = window.keyManagers || [];
             window.keyManagers.push(this);
             this.setCurrent();
-            this._keys = {}
+            this._keys = {};
+            this._onResize = false;
+            this._debug = false;
+            this._registeredAction = (e) => this._doAction();
         }
-    
+
         get config() {
             return this._config;
         }
-    
+
         get action() {
             return this._action;
+        }
+
+        set debug(value) {
+            this._debug = value;
+        }
+
+        onResize(value) {
+            value = value && true;
+            if (value !== this._onResize) {
+                if (value) {
+                    window.addEventListener("resize", this._registeredAction);
+                } else {
+                    window.removeEventListener("resize", this._registeredAction);
+                }
+            }
+            return this;
         }
 
         setCurrent() {
@@ -35,16 +54,16 @@
             if (this.action === null) {
                 window.action = this.action;
             } else {
-                window.action = (params) => this._doaction(params);
+                window.action = (params) => this._doAction(params);
             }
         }
-    
+
         add(key, modifier) {
-            this._keys[key] = this._keys[key]||[];
+            this._keys[key] = this._keys[key] || [];
             this._keys[key].push(modifier);
             return this;
         }
-    
+
         _onKey(key) {
             let modifiers = this._keys[key];
             if (modifiers) {
@@ -53,8 +72,8 @@
             }
             return false;
         }
-    
-        _doaction(params) {
+
+        _doAction(params) {
             params = params || {};
             for (let param in params) {
                 this.config[param] = params[param];
@@ -63,17 +82,33 @@
                 this.action(this.config);
             }
         }
-        
+
         setAction(action) {
             this._action = action;
-            window.action = (params) => this._doaction(params);
-            this._doaction();
+            window.action = (params) => this._doAction(params);
+            this._doAction();
             document.addEventListener("keydown", e => {
-                // console.log('on key', e.key, this.config);
-                if (this._onKey(e.key)) {
-                    // console.log('do action', this.config);
-                    this._doaction();
-                    // console.log('action done', this.config);
+                let xCode = e.code;
+                if (e.shiftKey) {
+                    xCode = `Shift+${xCode}`;
+                }
+                if (e.altKey) {
+                    xCode = `Alt+${xCode}`;
+                }
+                if (e.ctrlKey) {
+                    xCode = `Ctrl+${xCode}`;
+                }
+                if (this._debug) {
+                    console.log('on key', e.key, xCode, this.config);
+                }
+                if (this._onKey(e.key) || this._onKey(xCode)) {
+                    if (this._debug) {
+                        console.log('do action', this.config);
+                    }
+                    this._doAction();
+                    if (this._debug) {
+                        console.log('action done', this.config);
+                    }
                 }
             });
             return this;
