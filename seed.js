@@ -33,75 +33,63 @@ const keyManager = new KeyManager({
 const drawing = new Drawing({ canvasId: "item" });
 
 const mainAction = (config) => {
+    const { z, r, ratio, n, backgroundColor, penColor, hasRatio, hasCount, hasCf } = config;
+
     const height = window.innerHeight;
     const width = window.innerWidth;
     const origin = [width / 2, height / 2];
     let minDim = Math.min(width, height);
-    const mapx = minDim / (2 * config.z);
-    const mapy = -minDim / (2 * config.z);
-    const bgcolor = config.backgroundColor;
+    const mapx = minDim / (2 * z);
+    const mapy = -minDim / (2 * z);
+    const bgcolor = backgroundColor;
     drawing.reinit({ height, width, origin, mapx, mapy, bgcolor });
 
     drawing.circle({
         center: new Vector(0, 0),
         length: 1,
-        color: config.penColor
+        color: penColor
     });
 
-    getRange(config.n).map(i =>
+    getRange(n).map((i) =>
         drawing.circle({
             center: new Vector(
-                1 +
-                config.r +
-                i *
-                config.ratio *
-                2 *
-                config.r *
-                ((config.z - 1) /
-                    (config.n * config.ratio * 2 * config.r)),
-                i * 2 * Math.PI * config.ratio,
+                1 + r + i * ratio * 2 * r * ((z - 1) / (n * ratio * 2 * r)),
+                i * 2 * Math.PI * ratio,
                 true
             ),
-            length: config.r,
-            color: config.penColor
+            length: r,
+            color: penColor
         })
     );
 
-    config.fc = getCf(config.ratio);
-    config.partial_fc = partialCfs([...config.fc]);
+    const fc = getCf(ratio);
 
-    let text = JSON.stringify(config.fc) + "\n";
-    text =
-        text +
-        config.partial_fc
-            .map(
-                elem =>
-                    `${elem.term} : ${elem.fraction[0]}/${elem.fraction[1]} (~ ${elem.value})`
-            )
-            .join("\n");
+    const formatElement = (elem) => `${elem.term} : ${elem.fraction[0]}/${elem.fraction[1]} (~ ${elem.value})`;
+    let textPartialCf = JSON.stringify(fc) + "\n";
+    textPartialCf = textPartialCf + partialCfs([...fc]).map(formatElement).join("\n");
 
-    if (config.hasRatio) {
+    if (hasRatio) {
         drawing.addText({
-            text: `${config.ratio}`,
-            point: new CanvasVector(0, window.innerHeight),
-            position: POS_TOPRIGHT
+            text: `${ratio}`,
+            point: new CanvasVector(0, height),
+            position: POS_TOPRIGHT,
         });
     }
 
-    if (config.hasCf) {
+    if (hasCf) {
         drawing.addText({
-            text: text,
+            text: textPartialCf,
             point: new CanvasVector(0, 0),
             position: POS_BOTTOMRIGHT,
-            fontSize: "18px"
+            fontSize: "18px",
         });
     }
 
-    if (config.hasCount) {
+    if (hasCount) {
         drawing.addText({
-            text: `n = ${config.n}`,
-            point: new CanvasVector(window.innerWidth, window.innerHeight),
-            position: POS_TOPLEFT
+            text: `n = ${n}`,
+            point: new CanvasVector(width, height),
+            position: POS_TOPLEFT,
         });
     }
 };
