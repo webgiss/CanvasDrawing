@@ -127,7 +127,7 @@
         constructor({ drawing, color, fill }) {
             this._drawing = drawing;
             this._context = this._drawing.context;
-            this._color = color || '#000';
+            this._color = color;
             this._fill = fill;
             this._actions = [];
             this._firstPoint = null;
@@ -179,14 +179,16 @@
         }
         close() {
             if (this._context !== undefined) {
-                this._context.strokeStyle = this._color;
+                this._context.strokeStyle = this._color || 'none';
                 this._context.beginPath();
                 this._actions.map(action => action());
-                if (this._fill !== undefined) {
+                if (this._fill) {
                     this._context.fillStyle = this._fill;
                     this._context.fill();
                 }
-                this._context.stroke();
+                if (this._color) {
+                    this._context.stroke();
+                }
                 this._context.closePath();
             }
         }
