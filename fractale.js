@@ -33,22 +33,22 @@ drawing.addClickListener(({ position }) => {
 });
 
 keyManager
-    .add("ArrowUp", config => config.depth += 1)
-    .add("ArrowDown", config => config.depth -= 1)
-    .add("+", config => config.pixelscale += 1)
-    .add("-", config => config.pixelscale -= 1)
-    .add("*", config => config.size += 0.1)
-    .add("/", config => config.size -= 0.1)
-    .add("j", config => { config.julia = !config.julia; if (config.julia) { config.juliaPoint = config.clicks[0] || new Vector([0.4974874371859297, 0.5540201005025126]); } })
-    .add('x', config => body.classList.swap('maxwidth'))
-    .add('y', config => body.classList.swap('maxheight'))
-    .add('z', config => {
+    .add("ArrowUp", (config) => config.depth += 1)
+    .add("ArrowDown", (config) => config.depth -= 1)
+    .add("+", (config) => config.pixelscale += 1)
+    .add("-", (config) => config.pixelscale -= 1)
+    .add("*", (config) => config.size += 0.1)
+    .add("/", (config) => config.size -= 0.1)
+    .add("j", (config) => { config.julia = !config.julia; if (config.julia) { config.juliaPoint = config.clicks[0] || new Vector([0.4974874371859297, 0.5540201005025126]); } })
+    .add('x', (config) => body.classList.swap('maxwidth'))
+    .add('y', (config) => body.classList.swap('maxheight'))
+    .add('z', (config) => {
         if (config.clicks.length >= 2) {
             config.corners = config.clicks.slice(0, 2);
         }
     })
-    .add('u', config => config.corners = undefined)
-    .setAction(config => {
+    .add('u', (config) => config.corners = undefined)
+    .setAction((config) => {
         setTimeout(() => {
 
             let [width, height] = [window.innerWidth, window.innerHeight];
