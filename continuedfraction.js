@@ -1,26 +1,26 @@
-(function(){
-	ContinuedFraction = window.ContinuedFraction || {};
+(function () {
+    ContinuedFraction = window.ContinuedFraction || {};
 
-	const getCf = (x) => {
-		let result = [];
-		let sign = 1;
-		if (x < 0) {
-			x = -x;
-			sign = -1;
-		}
-		let ip = Math.floor(x);
-		result.push(ip);
-		x = x - ip;
+    const getCf = (x) => {
+        let result = [];
+        let sign = 1;
+        if (x < 0) {
+            x = -x;
+            sign = -1;
+        }
+        let ip = Math.floor(x);
+        result.push(ip);
+        x = x - ip;
 
-		for (let i = 0; i < 12; i++) {
-			if (x>0) {
-				x = 1 / x;
-				ip = Math.floor(x);
-				result.push(ip);
-				x = x - ip;
-			}
-		}
-		return result;
+        for (let i = 0; i < 12; i++) {
+            if (x > 0) {
+                x = 1 / x;
+                ip = Math.floor(x);
+                result.push(ip);
+                x = x - ip;
+            }
+        }
+        return result;
     };
 
     const getRatio = (CfParam) => {
@@ -30,7 +30,7 @@
             let value = cf.pop();
             ratio = + ratio + value;
             if (cf.length > 0) {
-                ratio = 1/ratio;
+                ratio = 1 / ratio;
             }
         }
         return ratio;
@@ -89,7 +89,7 @@
         return result;
     };
 
-    ContinuedFraction = {...ContinuedFraction, getCf, getRatio, reduceFraction, partialCf, partialCfs };
+    ContinuedFraction = { ...ContinuedFraction, getCf, getRatio, reduceFraction, partialCf, partialCfs };
 
-	window.ContinuedFraction = ContinuedFraction;
+    window.ContinuedFraction = ContinuedFraction;
 })(this);
