@@ -13,10 +13,6 @@ const {
     POS_BOTTOMLEFT,
 } = CanvasDrawing;
 
-const {
-    getCf, getRatio, reduceFraction, partialCf, partialCfs
-} = ContinuedFraction;
-
 const KeyManager = window.KeyManager;
 const keyManager = new KeyManager({
     penColor: '#e61ab6',
