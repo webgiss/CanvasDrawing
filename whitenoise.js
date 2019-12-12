@@ -7,14 +7,6 @@ const {
     animate,
 } = CanvasDrawing;
 
-const {
-    POS_CENTER,
-    POS_TOPLEFT,
-    POS_TOPRIGHT,
-    POS_BOTTOMRIGHT,
-    POS_BOTTOMLEFT,
-} = CanvasDrawing;
-
 const KeyManager = window.KeyManager;
 const keyManager = new KeyManager({
     penColor: '#331108',
@@ -61,9 +53,7 @@ keyManager
 
 
 const animationParams = {
-    action: ({ value }) => {
-        keyManager._doAction({ w: value });
-    },
+    action: ({ value }) => keyManager._doAction({ w: value }),
     frameTime: 0.01,
 };
 
