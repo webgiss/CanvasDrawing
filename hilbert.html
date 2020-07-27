@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+    <head>
+        <script src='canvasdrawing.js'></script>
+        <script src='animate.js'></script>
+        <script src='keymanager.js'></script>
+        <style>
+            body, canvas { margin:0; padding:0; overflow: hidden;}
+            body { position: relative; }
+            .workspace { top: 0; bottom: 0; left: 0; right: 0; position: fixed; display: block;}
+            .maxwidth #item { max-width: 100vw; }
+            .maxheight #item { max-height: 100vh; }
+        </style>
+    </head>
+    <body class='maxwidth maxheight'>
+        <div class='workspace'>
+        <canvas id='item'></canvas>
+        </div>
+    </body>
+</html>
+<script src='hilbert.js'></script>
