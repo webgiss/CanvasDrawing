@@ -17,19 +17,6 @@ const {
     getCf, getRatio, reduceFraction, partialCf, partialCfs
 } = ContinuedFraction;
 
-const KeyManager = window.KeyManager;
-const keyManager = new KeyManager({
-    penColor: '#331108',
-    backgroundColor: '#e0e0cc',
-    ratio: 0.05,
-    z: 12,
-    r: 0.1,
-    ratiochanger: 0.00001,
-    n: 500,
-    hasCf: false,
-    hasRatio: true,
-    hasCount: true,
-});
 const drawing = new Drawing({ canvasId: "item" });
 
 const mainAction = (config) => {
@@ -94,6 +81,19 @@ const mainAction = (config) => {
     }
 };
 
+const KeyManager = window.KeyManager;
+const keyManager = new KeyManager({
+    penColor: '#331108',
+    backgroundColor: '#e0e0cc',
+    ratio: 0.05,
+    z: 12,
+    r: 0.1,
+    ratiochanger: 0.00001,
+    n: 500,
+    hasCf: false,
+    hasRatio: true,
+    hasCount: true,
+});
 
 keyManager
     .add('ArrowUp', (config) => config.ratio += config.ratiochanger)

@@ -7,12 +7,6 @@ const {
     animate,
 } = CanvasDrawing;
 
-const KeyManager = window.KeyManager;
-const keyManager = new KeyManager({
-    penColor: '#331108',
-    backgroundColor: '#e0e0cc',
-    w: 8,
-});
 const drawing = new Drawing({ canvasId: "item" });
 
 const mainAction = (config) => {
@@ -41,6 +35,13 @@ const mainAction = (config) => {
         })
     })
 };
+
+const KeyManager = window.KeyManager;
+const keyManager = new KeyManager({
+    penColor: '#331108',
+    backgroundColor: '#e0e0cc',
+    w: 8,
+});
 
 keyManager
     .add('ArrowUp', () => { })

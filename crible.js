@@ -52,16 +52,6 @@ body.classList.__proto__.swap = function (className) {
     }
 }
 
-const keyManager = new KeyManager({
-    size: 40,
-    spiral_offset: 1,
-    display_non_2_3_multiple: false,
-    display_prime: true,
-    display_rectangle: true,
-    display_spiral: false,
-    display_text: false,
-});
-
 const mainAction = (config) => {
     let ssize = 2 * config.size;
     let scount = ssize * ssize;
@@ -165,6 +155,16 @@ const mainAction = (config) => {
         }
     }
 };
+
+const keyManager = new KeyManager({
+    size: 40,
+    spiral_offset: 1,
+    display_non_2_3_multiple: false,
+    display_prime: true,
+    display_rectangle: true,
+    display_spiral: false,
+    display_text: false,
+});
 
 keyManager
     .add("ArrowUp", config => config.spiral_offset += 1)

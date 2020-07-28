@@ -13,13 +13,6 @@ const {
     POS_BOTTOMLEFT,
 } = CanvasDrawing;
 
-const KeyManager = window.KeyManager;
-const keyManager = new KeyManager({
-    penColor: '#e61ab6',
-    backgroundColor: '#ffffff',
-    w: 16,
-    z: 1,
-});
 const drawing = new Drawing({ canvasId: "item" });
 
 const mainAction = (config) => {
@@ -119,6 +112,13 @@ const createColor = () => {
     
 }
 
+const KeyManager = window.KeyManager;
+const keyManager = new KeyManager({
+    penColor: '#e61ab6',
+    backgroundColor: '#ffffff',
+    w: 16,
+    z: 1,
+});
 
 keyManager
     .add('ArrowUp', () => {})
