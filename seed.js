@@ -36,11 +36,16 @@ const mainAction = (config) => {
         length: 1,
         color: penColor
     });
+    drawing.circle({
+        center: new Vector(0, 0),
+        length: z,
+        color: penColor
+    });
 
     getRange(n).map((i) =>
         drawing.circle({
             center: new Vector(
-                1 + r + i * ratio * 2 * r * ((z - 1) / (n * ratio * 2 * r)),
+                1 + r + (n-i-1) * ((z - 1 - 2*r) / (n - 1)),
                 i * 2 * Math.PI * ratio,
                 true
             ),
