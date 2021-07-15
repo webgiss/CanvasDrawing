@@ -8,6 +8,7 @@ let prime_color = '#aa6644';
 let rectangle_color = '#ccbb00';
 let text_color = '#331108';
 let spiral_color = '#000000';
+let multiple_color = '#5577ff';
 let text_size = 10;
 
 class Primes {
@@ -37,6 +38,8 @@ class Primes {
     isPrime(k) {
         return this._primes[k] > 0;
     }
+
+    get size() { return this._primes.length }
 }
 
 let primes = new Primes();
@@ -120,6 +123,12 @@ const mainAction = (config) => {
             }
         }
 
+        if (config.display_multiple) {
+            if (k % config.current_multiple === 0) { 
+                drawing.filledRectangle({ point0: new Vector(x, y), point1: new Vector(x + 1, y + 1), color: multiple_color });
+            }
+        }
+
         if (config.display_rectangle) {
             drawing.rectangle({ point0: new Vector(x, y), point1: new Vector(x + 1, y + 1), color: rectangle_color });
         }
@@ -156,6 +165,29 @@ const mainAction = (config) => {
     }
 };
 
+const increment_multiple = (multiple) => {
+    let index = multiple;
+    while (index < primes.size) {
+        index++;
+        if (primes.isPrime(index)) {
+            return index;
+        }
+    }
+    return multiple;
+}
+
+const decrement_multiple = (multiple) => {
+    let index = multiple;
+    while (index > 2) {
+        index--;
+        if (primes.isPrime(index)) {
+            return index;
+        }
+    }
+    return multiple;
+}
+
+
 const keyManager = new KeyManager({
     size: 40,
     spiral_offset: 1,
@@ -164,21 +196,24 @@ const keyManager = new KeyManager({
     display_rectangle: true,
     display_spiral: false,
     display_text: false,
+    display_multiple: false,
+    current_multiple: 2,
 });
 
 keyManager
-    .add("ArrowUp", config => config.spiral_offset += 1)
-    .add("ArrowDown", config => config.spiral_offset -= 1)
-    .add("ArrowLeft", config => config.spiral_offset -= 1)
-    .add("ArrowRight", config => config.spiral_offset += 1)
-    .add("+", config => config.size += 1)
-    .add("-", config => config.size -= 1)
-    .add("*", config => config.display_non_2_3_multiple = !config.display_non_2_3_multiple)
-    .add("\u00f9", config => config.display_prime = !config.display_prime)
-    .add("r", config => config.display_rectangle = !config.display_rectangle)
-    .add("s", config => config.display_spiral = !config.display_spiral)
-    .add("t", config => config.display_text = !config.display_text)
-    .add('x', config => body.classList.swap('maxwidth'))
-    .add('y', config => body.classList.swap('maxheight'))
+    .add("ArrowUp", (config) => config.current_multiple = increment_multiple(config.current_multiple))
+    .add("ArrowDown", (config) => config.current_multiple = decrement_multiple(config.current_multiple))
+    .add("ArrowLeft", (config) => config.spiral_offset -= 1)
+    .add("ArrowRight", (config) => config.spiral_offset += 1)
+    .add("+", (config) => config.size += 1)
+    .add("-", (config) => config.size -= 1)
+    .add("*", (config) => config.display_non_2_3_multiple = !config.display_non_2_3_multiple)
+    .add("\u00f9", (config) => config.display_prime = !config.display_prime)
+    .add("r", (config) => config.display_rectangle = !config.display_rectangle)
+    .add("s", (config) => config.display_spiral = !config.display_spiral)
+    .add("t", (config) => config.display_text = !config.display_text)
+    .add("m", (config) => config.display_multiple = !config.display_multiple)
+    .add('x', (config) => body.classList.swap('maxwidth'))
+    .add('y', (config) => body.classList.swap('maxheight'))
     .setAction(mainAction)
 ;
