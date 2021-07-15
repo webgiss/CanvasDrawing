@@ -17,7 +17,7 @@ const {
 const drawing = new Drawing({ canvasId: "item" });
 
 const mainAction = (config) => {
-    const { n, minimal, mode_color, mode_bin, mode_2_to_1, backgroundColor, penColor, } = config;
+    const { n, minimal, mode_contrast, mode_color, mode_bin, mode_2_to_1, backgroundColor, penColor, } = config;
 
     let height = window.innerHeight;
     let width = window.innerWidth;
@@ -43,7 +43,7 @@ const mainAction = (config) => {
                     position: POS_CENTER,
                     point: new Vector(x, y).add(0.5, 0.5),
                     textAlign: ALIGN_CENTER,
-                    color: mode_color ? hue2color(i / (max * max)) : penColor,
+                    color: mode_color ? (mode_contrast ? hue2color_minmax(i / (max * max), 0, 0.7) : hue2color(i / (max * max))) : penColor,
                 });
             })
         })
@@ -57,7 +57,7 @@ const mainAction = (config) => {
                 drawing.line({
                     point0: new Vector(p0).add(0.5, 0.5),
                     point1: new Vector(p1).add(0.5, 0.5),
-                    color: mode_color ? hue2color(i / N) : penColor,
+                    color: mode_color ? (mode_contrast ? hue2color_minmax(i / N, 0, 0.7) : hue2color(i / N)) : penColor,
                 });
             }
         })
@@ -67,11 +67,12 @@ const mainAction = (config) => {
 const KeyManager = window.KeyManager;
 const keyManager = new KeyManager({
     penColor: '#331108',
-    backgroundColor: '#e0e0cc',
+    backgroundColor: '#ffffff',
     mode_2_to_1: false,
     mode_bin: false,
     mode_color: false,
     minimal: false,
+    mode_contrast: false,
     n: 4,
 });
 
@@ -85,6 +86,7 @@ keyManager
     .add('b', (config) => config.mode_bin = !(config.mode_bin))
     .add('c', (config) => config.mode_color = !(config.mode_color))
     .add('m', (config) => config.minimal = !(config.minimal))
+    .add('t', (config) => config.mode_contrast = !(config.mode_contrast))
     .setAction(mainAction)
     .onResize(true)
     ;
