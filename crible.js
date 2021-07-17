@@ -55,8 +55,8 @@ body.classList.__proto__.swap = function (className) {
     }
 }
 
-const mainAction = (config) => {
-    let ssize = 2 * config.size;
+const mainAction = (config, keyManager) => {
+    let ssize = 2 * config.size + 1;
     let scount = ssize * ssize;
     let [width, height] = [window.innerWidth, window.innerHeight];
     let minDim = Math.min(width, height);
@@ -64,8 +64,8 @@ const mainAction = (config) => {
         height,
         width,
         origin: [width / 2, height / 2],
-        mapx: (minDim / 2) / config.size,
-        mapy: -(minDim / 2) / config.size,
+        mapx: (minDim) / ssize,
+        mapy: -(minDim) / ssize,
         bgcolor: background_color,
     });
 
@@ -246,9 +246,16 @@ const mainAction = (config) => {
     }
 
     if (config.display_info) {
-        info = Object.keys(config).map((key)=>`${key}: ${config[key]}`).join('\n')
-        drawing.addText({ text: info, fontFamily: 'sans-serif', fontSize: '14px', color: text_color, point: new CanvasVector([0, 0]), position: '3' }); 
+        info = Object.keys(config).map((key) => `${key}: ${config[key]}`).join('\n')
+        drawing.addText({ text: info, fontFamily: 'sans-serif', fontSize: '14px', color: text_color, point: new CanvasVector([0, 0]), position: '3' });
+        if (keyManager) {
+            const doc = keyManager.doc;
+            if (doc) {
+                drawing.addText({ text: doc, fontFamily: 'sans-serif', fontSize: '14px', color: text_color, point: new CanvasVector([width, height]), position: '7' });
+            }
+        }
     }
+
 };
 
 const increment_multiple = (multiple) => {
@@ -277,34 +284,34 @@ const decrement_multiple = (multiple) => {
 const keyManager = new KeyManager({
     size: 40,
     spiral_offset: 1,
+    current_multiple: 2,
+    display_multiple: false,
     display_non_2_3_multiple: false,
     display_prime: true,
     display_grid: true,
     display_spiral: false,
     display_text: false,
-    display_multiple: false,
-    current_multiple: 2,
     display_square: true,
     display_info: true,
 });
 
 keyManager
-    .add("ArrowUp", (config) => config.current_multiple = increment_multiple(config.current_multiple))
-    .add("ArrowDown", (config) => config.current_multiple = decrement_multiple(config.current_multiple))
-    .add("ArrowLeft", (config) => config.spiral_offset -= 1)
-    .add("ArrowRight", (config) => config.spiral_offset += 1)
-    .add("+", (config) => config.size += 1)
-    .add("-", (config) => config.size -= 1)
-    .add("*", (config) => config.display_non_2_3_multiple = !config.display_non_2_3_multiple)
-    .add("\u00f9", (config) => config.display_prime = !config.display_prime)
-    .add("g", (config) => config.display_grid = !config.display_grid)
-    .add("s", (config) => config.display_spiral = !config.display_spiral)
-    .add("t", (config) => config.display_text = !config.display_text)
+    .add("+", (config) => config.size += 1, 'Increment size')
+    .add("-", (config) => config.size -= 1, 'Decrement size')
+    .add("ArrowLeft", (config) => config.spiral_offset -= 1, 'Decrement spiral_offset')
+    .add("ArrowRight", (config) => config.spiral_offset += 1, 'Increment spiral_offset')
+    .add("ArrowDown", (config) => config.current_multiple = decrement_multiple(config.current_multiple), 'Decrement current_multiple')
+    .add("ArrowUp", (config) => config.current_multiple = increment_multiple(config.current_multiple), 'Increment current_multiple')
     .add("m", (config) => config.display_multiple = !config.display_multiple)
-    .add("h", (config) => config.display_square = !config.display_square)
-    .add("i", (config) => config.display_info = !config.display_info)
-    .add('x', (config) => body.classList.swap('maxwidth'))
-    .add('y', (config) => body.classList.swap('maxheight'))
+    .add("*", (config) => config.display_non_2_3_multiple = !config.display_non_2_3_multiple, 'Toggle display_non_2_3_multiple')
+    .add("\u00f9", (config) => config.display_prime = !config.display_prime, 'Toggle display_prime')
+    .add("g", (config) => config.display_grid = !config.display_grid, 'Toggle display_grid')
+    .add("s", (config) => config.display_spiral = !config.display_spiral, 'Toggle display_spiral')
+    .add("t", (config) => config.display_text = !config.display_text, 'Toggle display_text')
+    .add("h", (config) => config.display_square = !config.display_square, 'Toggle display_square')
+    .add("i", (config) => config.display_info = !config.display_info, 'Toggle display_info')
+    // .add('x', (config) => body.classList.swap('maxwidth'), 'Toggle css maxwidth')
+    // .add('y', (config) => body.classList.swap('maxheight'), 'Toggle css maxheight')
     .setAction(mainAction)
     .onResize(true)
     ;
