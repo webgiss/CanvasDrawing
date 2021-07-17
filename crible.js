@@ -244,6 +244,11 @@ const mainAction = (config) => {
             }
         }
     }
+
+    if (config.display_info) {
+        info = Object.keys(config).map((key)=>`${key}: ${config[key]}`).join('\n')
+        drawing.addText({ text: info, fontFamily: 'sans-serif', fontSize: '14px', color: text_color, point: new CanvasVector([0, 0]), position: '3' }); 
+    }
 };
 
 const increment_multiple = (multiple) => {
@@ -280,6 +285,7 @@ const keyManager = new KeyManager({
     display_multiple: false,
     current_multiple: 2,
     display_square: true,
+    display_info: true,
 });
 
 keyManager
@@ -296,6 +302,7 @@ keyManager
     .add("t", (config) => config.display_text = !config.display_text)
     .add("m", (config) => config.display_multiple = !config.display_multiple)
     .add("h", (config) => config.display_square = !config.display_square)
+    .add("i", (config) => config.display_info = !config.display_info)
     .add('x', (config) => body.classList.swap('maxwidth'))
     .add('y', (config) => body.classList.swap('maxheight'))
     .setAction(mainAction)
