@@ -299,4 +299,5 @@ keyManager
     .add('x', (config) => body.classList.swap('maxwidth'))
     .add('y', (config) => body.classList.swap('maxheight'))
     .setAction(mainAction)
+    .onResize(true)
     ;
