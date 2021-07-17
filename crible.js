@@ -140,8 +140,8 @@ const mainAction = (config, keyManager) => {
         }
     }
 
-    const u1 = [0, 1]
-    const u2 = [-Math.sqrt(3) / 2, 1 / 2]
+    const u1 = [1/2 , -Math.sqrt(3) / 2]
+    const u2 = [1, 0]
     const directionMatrix = [[1, 0, -1, -1, 0, 1], [0, 1, 1, 0, -1, -1]]
 
 
@@ -229,7 +229,7 @@ const mainAction = (config, keyManager) => {
             let point = null;
 
             dir_length = [0, 0, 0, 1, 0, 1]
-            while (index <= ssize) {
+            while (index <= ssize*0.57) {
                 for (index_dir = 0; index_dir < 6; index_dir++) {
                     d = [u1[0] * directionMatrix[0][p] + u2[0] * directionMatrix[1][p], u1[1] * directionMatrix[0][p] + u2[1] * directionMatrix[1][p]]
                     point = [x, y];
