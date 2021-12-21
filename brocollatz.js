@@ -224,13 +224,19 @@ const addColatzs = (n, parent) => {
         const colatz = getColatz(value);
         addColatz(colatz, parent);
         value = colatz.next;
-        // console.log(value)
         count += 1;
     }
 
     countZone.textContent = `Count : ${count}`;
 }
 
+const updateInput = (input, value) => {
+    if (input.value !== value) {
+        input.value = value;
+    }
+}
+
+const getInputValue = (input) => input.value;
 
 const start = () => {
     addStyle('.colatzItem { width: 100%; padding-bottom: 15px; }')
@@ -257,61 +263,52 @@ const start = () => {
     })
     const workspace = createElement({ name: 'div', parent: document.body, classNames: ['workspace'] });
 
-    const updateInputDec = (value) => {
-        if (inputDec.value !== value) {
-            inputDec.value = value;
-        }
-    }
-    const updateInputBin = (value) => {
-        if (inputBin.value !== value) {
-            inputBin.value = value;
-        }
-    }
+    const updateInputDec = (value) => updateInput(inputDec, value)
+    const updateInputBin = (value) => updateInput(inputBin, value)
+    const getInputDec = () => getInputValue(inputDec)
+    const getInputBin = () => getInputValue(inputBin)
 
     let n = 0;
     const run = () => {
         workspace.innerHTML = '';
         addColatzs(n, workspace);
     }
-    updateInputDec(`${n}`)
-    updateInputBin(getBinary(n))
-    // run();
 
     const onHashChanged = () => {
         const hash = getCurrentLocationHash()
         const value = hash * 1;
-        console.log('x',value, hash)
         if (!isNaN(value)) {
             n = value;
             const binary = getBinary(n);
             updateInputDec(`${n}`)
-            updateInputBin(getBinary(n))
+            updateInputBin(binary)
             run();
         }
     }
 
+    const setHash = (value) => {
+        setLocationHash(`${value}`)
+        onHashChanged()
+    }
+
     inputDec.addEventListener('input', () => {
-        const value = inputDec.value * 1;
+        const value = getInputDec() * 1;
         if (!isNaN(value)) {
             n = value;
-            const binary = getBinary(n);
-            setLocationHash(`${n}`)
-            onHashChanged()
+            setHash(n)
         }
     })
 
     inputBin.addEventListener('input', () => {
-        n = getDec(inputBin.value)
-        setLocationHash(`${n}`)
-        onHashChanged()
+        n = getDec(getInputBin())
+        setHash(n)
     })
-
-    setHashChanged(onHashChanged)
 
     if (getCurrentLocationHash()==='') {
         setLocationHash('27')
     }
 
+    setHashChanged(onHashChanged)
     onHashChanged()
 }
 
