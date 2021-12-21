@@ -19,7 +19,7 @@ const {
 
 const drawing = new Drawing({ canvasId: "item" });
 
-const mainAction = (config) => {
+const mainAction = async (config, keyManager, { shouldContinue }) => {
     const { z, r, ratio, n, backgroundColor, penColor, hasRatio, hasCount, hasCf } = config;
 
     const height = window.innerHeight;
@@ -42,17 +42,20 @@ const mainAction = (config) => {
         color: penColor
     });
 
-    getRange(n).map((i) =>
+    for (let i=0; i<n; i++) {
+        if (!await shouldContinue()) {
+            return;
+        }
         drawing.circle({
             center: new Vector(
-                1 + r + (n-i-1) * ((z - 1 - 2*r) / (n - 1)),
+                1 + r + (n - i - 1) * ((z - 1 - 2 * r) / (n - 1)),
                 i * 2 * Math.PI * ratio,
                 true
             ),
             length: r,
             color: penColor
         })
-    );
+    }
 
     const fc = getCf(ratio);
 

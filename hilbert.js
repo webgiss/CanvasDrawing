@@ -16,7 +16,7 @@ const {
 
 const drawing = new Drawing({ canvasId: "item" });
 
-const mainAction = (config) => {
+const mainAction = async (config, keyManager, { shouldContinue }) => {
     const { n, minimal, mode_contrast, mode_color, mode_bin, mode_2_to_1, backgroundColor, penColor, } = config;
 
     let height = window.innerHeight;
@@ -35,8 +35,11 @@ const mainAction = (config) => {
 
     if (mode_2_to_1) {
         const max = 2 ** n;
-        getRange(max).forEach((x) => {
-            getRange(max).forEach((y) => {
+        for (let x = 0; x < max; x++) {
+            if (!await shouldContinue()) {
+                return;
+            }
+            for (let y = 0; y < max; y++) {
                 const i = hilbert2To1(n, x, y);
                 drawing.addText({
                     text: mode_bin ? `${i.toString(2).padStart(2 * n, '0')}` : `${i}`,
@@ -45,22 +48,23 @@ const mainAction = (config) => {
                     textAlign: ALIGN_CENTER,
                     color: mode_color ? (mode_contrast ? hue2color_minmax(i / (max * max), 0, 0.7) : hue2color(i / (max * max))) : penColor,
                 });
-            })
-        })
+            }
+        }
     } else {
         const N = 2 ** (2 * n);
         const curve = getRange(N).map(i => hilbert1To2(n, i));
-        getRange(N).forEach((i) => {
-            if (i > 0) {
-                let p0 = curve[i - 1];
-                let p1 = curve[i];
-                drawing.line({
-                    point0: new Vector(p0).add(0.5, 0.5),
-                    point1: new Vector(p1).add(0.5, 0.5),
-                    color: mode_color ? (mode_contrast ? hue2color_minmax(i / N, 0, 0.7) : hue2color(i / N)) : penColor,
-                });
+        for (let i = 1; i < N; i++) {
+            if (!await shouldContinue()) {
+                return;
             }
-        })
+            let p0 = curve[i - 1];
+            let p1 = curve[i];
+            drawing.line({
+                point0: new Vector(p0).add(0.5, 0.5),
+                point1: new Vector(p1).add(0.5, 0.5),
+                color: mode_color ? (mode_contrast ? hue2color_minmax(i / N, 0, 0.7) : hue2color(i / N)) : penColor,
+            });
+        }
     }
 };
 
