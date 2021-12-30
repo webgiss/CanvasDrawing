@@ -34,7 +34,8 @@ const config = {
     display_hypotrocoids: true,
     dot_len: 0.005,
     alpha: 0,
-    lambda: 0.95,
+    lambda: 0.84,
+    time: 10,
 }
 
 const mainAction = (config, keyManager) => {
@@ -144,7 +145,7 @@ const mainAction = (config, keyManager) => {
 
 let loopIteration = 0;
 
-const doLoop = (n) => {
+const doLoop = (n, time) => {
     const thisIteration = (++loopIteration);
     let p = Promise.resolve();
     const animationParams = {
@@ -156,7 +157,7 @@ const doLoop = (n) => {
         frameTime: 0.01,
     };
 
-    p = p.then(() => animate({ ...animationParams, from: 0, to: n * 2 * Math.PI, duration: 10 }));
+    p = p.then(() => animate({ ...animationParams, from: 0, to: n * 2 * Math.PI, duration: time }));
 }
 
 const keyManager = new KeyManager(config);
@@ -175,8 +176,10 @@ keyManager
     .add("P", (config) => config.display_other_polygon = !config.display_other_polygon, 'Toggle display_other_circle')
     .add("a", (config) => config.display_all_circles = !config.display_all_circles, 'Toggle display_all_circles')
     .add("h", (config) => config.display_hypotrocoids = !config.display_hypotrocoids, 'Toggle display_hypotrocoids')
+    .add("t", (config) => {loopIteration++; config.time = config.time+1}, 'Increment total animation time (s)')
+    .add("T", (config) => {loopIteration++; config.time = config.time-1}, 'Decrement total animation time (s)')
 
-    .add('Space', (config) => doLoop(config.a), 'Start animation')
+    .add('Space', (config) => doLoop(config.a, config.time), 'Start animation')
     .add('Escape', (config) => loopIteration++, 'Stop animation')
     // .add('x', (config) => body.classList.swap('maxwidth'), 'Toggle css maxwidth')
     // .add('y', (config) => body.classList.swap('maxheight'), 'Toggle css maxheight')
