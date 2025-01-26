@@ -20,7 +20,7 @@ const {
 const drawing = new Drawing({ canvasId: "item" });
 
 const mainAction = async (config, keyManager, { shouldContinue }) => {
-    const { z, r, ratio, n, backgroundColor, penColor, hasRatio, hasCount, hasCf, isDynamicRadius } = config;
+    const { z, r, ratio, n, backgroundColor, penColor, hasRatio, hasCount, hasCf, isDynamicRadius, displayCircles } = config;
 
     const height = window.innerHeight;
     const width = window.innerWidth;
@@ -31,17 +31,19 @@ const mainAction = async (config, keyManager, { shouldContinue }) => {
     const bgcolor = backgroundColor;
     drawing.reinit({ height, width, origin, mapx, mapy, bgcolor });
 
-    drawing.circle({
-        center: new Vector(0, 0),
-        length: 1,
-        color: penColor
-    });
-    drawing.circle({
-        center: new Vector(0, 0),
-        length: z,
-        color: penColor
-    });
-
+    if (displayCircles) {
+        drawing.circle({
+            center: new Vector(0, 0),
+            length: 1,
+            color: penColor
+        });
+        drawing.circle({
+            center: new Vector(0, 0),
+            length: z,
+            color: penColor
+        });
+    }
+    
     for (let i=0; i<n; i++) {
         if (!await shouldContinue()) {
             return;
@@ -103,6 +105,7 @@ const keyManager = new KeyManager({
     hasCf: false,
     hasRatio: true,
     hasCount: true,
+    displayCircles: true,
 });
 
 keyManager
@@ -119,6 +122,8 @@ keyManager
     .add('Shift+KeyP', (config) => config.ratio = (1 + Math.sqrt(5)) / 2)
     .add('Ctrl+Alt+KeyP', (config) => config.ratio = 0.05)
     .add('KeyD', (config) => config.isDynamicRadius = !(config.isDynamicRadius))
+    .add('Shift+KeyD', (config) => config.displayCircles = !(config.displayCircles))
+    
     .setAction(mainAction)
     .onResize(true)
     ;
@@ -137,3 +142,8 @@ const cr = (xratio) => {
 console.log('Use cr(ratio) to change the ratio');
 console.log('Use action({param=value}) to change a value from the `config` variable');
 console.log('Current config:', JSON.stringify(config,null,2));
+console.log('examples:')
+console.log('```\ncr(0.05)\n```')
+console.log('```\naction({ratio:0,n:550,ratiochanger:0.0001,penColor:"#1c5fee",backgroundColor:"#f8f8ff",displayCircles:false,hasRatio:false,hasCount:false}); CanvasDrawing.animate({action:() => {action({ratio:config.ratio+config.ratiochanger})},from:0,to:60*50,step:0.03,duration:60*50})\n```')
+
+
