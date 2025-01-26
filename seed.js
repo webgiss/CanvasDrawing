@@ -25,7 +25,7 @@ const mainAction = async (config, keyManager, { shouldContinue }) => {
     const height = window.innerHeight;
     const width = window.innerWidth;
     const origin = [width / 2, height / 2];
-    let minDim = Math.min(width, height);
+    let minDim = Math.min(width, height)-15;
     const mapx = minDim / (2 * z);
     const mapy = -minDim / (2 * z);
     const bgcolor = backgroundColor;
@@ -114,7 +114,7 @@ keyManager
     .add('-', (config) => config.n = Math.floor(config.n / 1.08))
     .add('KeyR', (config) => config.hasRatio = !(config.hasRatio))
     .add('KeyC', (config) => config.hasCf = !(config.hasCf))
-    .add('shift+KeyC', (config) => config.hasCount = !(config.hasCount))
+    .add('Shift+KeyC', (config) => config.hasCount = !(config.hasCount))
     .add('KeyP', (config) => config.ratio = Math.PI)
     .add('Shift+KeyP', (config) => config.ratio = (1 + Math.sqrt(5)) / 2)
     .add('Ctrl+Alt+KeyP', (config) => config.ratio = 0.05)
